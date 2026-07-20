@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Street Fighter</title>
+    <title>Neon Synthwave Fighter</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #111;
+            background-color: #050510;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,12 +21,13 @@
 
         #game-container {
             position: relative;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-            border: 4px solid #333;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.3);
+            border: 4px solid #222;
             border-radius: 8px;
+            background: #000;
         }
 
-        /* Interface das Barras de Vida */
+        /* Interface (Vida e Energia) */
         #ui-layer {
             position: absolute;
             top: 20px;
@@ -39,41 +39,60 @@
             z-index: 10;
         }
 
-        .health-bar-container {
+        .player-stats {
             width: 40%;
-            height: 30px;
-            background-color: #333;
-            border: 3px solid white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .health-bar-container {
+            width: 100%;
+            height: 25px;
+            background-color: #222;
+            border: 2px solid white;
             border-radius: 5px;
-            position: relative;
+            overflow: hidden;
         }
 
         .health-bar {
             height: 100%;
             width: 100%;
-            transition: width 0.2s ease-out;
+            transition: width 0.15s ease-out;
         }
 
-        #p1-health {
-            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
-            box-shadow: 0 0 10px #00f2fe;
-            float: left;
+        .energy-bar-container {
+            width: 80%;
+            height: 10px;
+            background-color: #111;
+            border: 1px solid #555;
+            border-radius: 3px;
+            overflow: hidden;
         }
 
-        #p2-health {
-            background: linear-gradient(90deg, #f5576c 0%, #f093fb 100%);
-            box-shadow: 0 0 10px #f5576c;
-            float: right;
+        .energy-bar {
+            height: 100%;
+            width: 0%; /* Começa zerada */
+            transition: width 0.1s linear;
         }
+
+        #p1-health { background: linear-gradient(90deg, #00f2fe, #4facfe); box-shadow: 0 0 10px #00f2fe; }
+        #p2-health { background: linear-gradient(90deg, #f5576c, #f093fb); box-shadow: 0 0 10px #f5576c; float: right; }
+        
+        #p1-energy { background: #00ffff; box-shadow: 0 0 8px #00ffff; }
+        #p2-energy { background: #ff00ff; box-shadow: 0 0 8px #ff00ff; float: right; }
+
+        .p2-stats { align-items: flex-end; }
 
         #timer {
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 10px white;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 15px;
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 15px #fff, 0 0 30px #ff00ff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 20px;
             border-radius: 10px;
+            border: 2px solid #fff;
         }
 
         #game-over {
@@ -81,82 +100,87 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 48px;
-            font-weight: bold;
+            font-size: 50px;
+            font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 20px #fff;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff;
             display: none;
             text-align: center;
-            background: rgba(0,0,0,0.7);
-            padding: 20px;
+            background: rgba(10, 10, 20, 0.85);
+            padding: 30px;
             border-radius: 15px;
+            border: 2px solid #fff;
             z-index: 20;
+            text-transform: uppercase;
         }
 
         .restart-btn {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 20px;
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 22px;
             cursor: pointer;
-            background: #fff;
-            color: #000;
+            background: linear-gradient(90deg, #00f2fe, #f093fb);
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transition: 0.2s;
         }
         
-        .restart-btn:hover {
-            background: #ddd;
-        }
+        .restart-btn:hover { transform: scale(1.05); }
 
-        /* Instruções na tela */
+        /* Controles */
         #controls {
             display: flex;
             justify-content: space-between;
             width: 1024px;
             margin-top: 15px;
-            background: #222;
-            padding: 15px;
+            background: rgba(20, 20, 30, 0.9);
+            padding: 15px 30px;
             border-radius: 8px;
             box-sizing: border-box;
-            border: 1px solid #444;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        .control-panel {
-            text-align: center;
-        }
-
-        .p1-color { color: #00f2fe; text-shadow: 0 0 5px #00f2fe; }
-        .p2-color { color: #f5576c; text-shadow: 0 0 5px #f5576c; }
+        .control-panel { text-align: center; font-size: 15px;}
+        .p1-color { color: #00ffff; text-shadow: 0 0 8px #00ffff; margin: 0 0 10px 0;}
+        .p2-color { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; margin: 0 0 10px 0;}
         
         kbd {
-            background-color: #444;
-            border-radius: 3px;
-            border: 1px solid #777;
-            padding: 2px 6px;
+            background-color: #111;
+            border-radius: 4px;
+            border: 1px solid #00ffff;
+            color: #fff;
+            padding: 3px 8px;
             font-family: monospace;
-            font-size: 14px;
-            margin: 0 2px;
-            box-shadow: 1px 1px 0 #000;
+            font-weight: bold;
+            margin: 0 3px;
+            box-shadow: 0 0 5px rgba(0,255,255,0.3);
         }
+        .kbd-p2 { border-color: #ff00ff; box-shadow: 0 0 5px rgba(255,0,255,0.3); }
     </style>
 </head>
 <body>
 
     <div id="game-container">
         <div id="ui-layer">
-            <div class="health-bar-container">
-                <div id="p1-health" class="health-bar"></div>
+            <div class="player-stats">
+                <div class="health-bar-container"><div id="p1-health" class="health-bar"></div></div>
+                <div class="energy-bar-container"><div id="p1-energy" class="energy-bar"></div></div>
             </div>
             <div id="timer">60</div>
-            <div class="health-bar-container">
-                <div id="p2-health" class="health-bar"></div>
+            <div class="player-stats p2-stats">
+                <div class="health-bar-container"><div id="p2-health" class="health-bar"></div></div>
+                <div class="energy-bar-container"><div id="p2-energy" class="energy-bar"></div></div>
             </div>
         </div>
 
         <div id="game-over">
             <span id="winner-text">Empate!</span><br>
-            <button class="restart-btn" onclick="location.reload()">Jogar Novamente</button>
+            <button class="restart-btn" onclick="location.reload()">Lutar Novamente</button>
         </div>
 
         <canvas id="gameCanvas" width="1024" height="576"></canvas>
@@ -164,85 +188,226 @@
 
     <div id="controls">
         <div class="control-panel">
-            <h3 class="p1-color" style="margin:0 0 10px 0;">JOGADOR 1 (Ciano)</h3>
-            <p style="margin:5px 0;">Mover: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></p>
-            <p style="margin:5px 0;">Atacar: <kbd>Espaço</kbd></p>
+            <h3 class="p1-color">JOGADOR 1 (Ciborgue)</h3>
+            <p>Mover: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></p>
+            <p>Soco: <kbd>Espaço</kbd> | Especial: <kbd>C</kbd></p>
         </div>
         <div class="control-panel">
-            <h3 class="p2-color" style="margin:0 0 10px 0;">JOGADOR 2 (Rosa)</h3>
-            <p style="margin:5px 0;">Mover: <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd></p>
-            <p style="margin:5px 0;">Atacar: <kbd>Enter</kbd></p>
+            <h3 class="p2-color">JOGADOR 2 (Ninja)</h3>
+            <p>Mover: <kbd class="kbd-p2">↑</kbd> <kbd class="kbd-p2">←</kbd> <kbd class="kbd-p2">↓</kbd> <kbd class="kbd-p2">→</kbd></p>
+            <p>Soco: <kbd class="kbd-p2">Enter</kbd> | Especial: <kbd class="kbd-p2">Shift</kbd></p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
     const c = canvas.getContext('2d');
+    const gravity = 0.8;
 
-    const gravity = 0.7;
-
-    // Fundo do jogo
-    class Background {
+    // --- SISTEMA DE PARTÍCULAS ---
+    const particles = [];
+    class Particle {
+        constructor({ position, velocity, color }) {
+            this.position = position;
+            this.velocity = velocity;
+            this.color = color;
+            this.radius = Math.random() * 3 + 1;
+            this.life = 1; // 100%
+        }
         draw() {
-            // Céu
-            let gradient = c.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, "#1a0b2e");
-            gradient.addColorStop(1, "#3c1053");
-            c.fillStyle = gradient;
-            c.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Chão
-            c.fillStyle = '#111';
-            c.fillRect(0, canvas.height - 50, canvas.width, 50);
-            
-            // Linha neon do chão
+            c.save();
+            c.globalAlpha = this.life;
+            c.beginPath();
+            c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+            c.fillStyle = this.color;
             c.shadowBlur = 10;
-            c.shadowColor = '#00ffcc';
-            c.fillStyle = '#00ffcc';
-            c.fillRect(0, canvas.height - 50, canvas.width, 3);
-            c.shadowBlur = 0; // Reset
+            c.shadowColor = this.color;
+            c.fill();
+            c.restore();
+        }
+        update() {
+            this.draw();
+            this.position.x += this.velocity.x;
+            this.position.y += this.velocity.y;
+            this.life -= 0.04; // Desaparece aos poucos
         }
     }
 
-    class Fighter {
-        constructor({ position, velocity, color, shadowColor, offset }) {
+    function createExplosion(x, y, color) {
+        for (let i = 0; i < 15; i++) {
+            particles.push(new Particle({
+                position: { x, y },
+                velocity: { x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10 },
+                color: color
+            }));
+        }
+    }
+
+    // --- PROJÉTEIS (ESPECIAIS) ---
+    const projectiles = [];
+    class Projectile {
+        constructor({ position, velocity, color, owner }) {
             this.position = position;
             this.velocity = velocity;
-            this.width = 50;
-            this.height = 150;
-            this.lastKey;
-            this.attackBox = {
-                position: { x: this.position.x, y: this.position.y },
-                offset: offset,
-                width: 100,
-                height: 50
-            };
             this.color = color;
-            this.shadowColor = shadowColor;
+            this.owner = owner; // 'p1' ou 'p2'
+            this.radius = 15;
+            this.active = true;
+        }
+        draw() {
+            c.beginPath();
+            c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+            c.fillStyle = 'white';
+            c.shadowBlur = 20;
+            c.shadowColor = this.color;
+            c.fill();
+            c.closePath();
+            
+            // Rastro
+            c.beginPath();
+            c.arc(this.position.x - (this.velocity.x * 2), this.position.y, this.radius * 0.6, 0, Math.PI * 2);
+            c.fillStyle = this.color;
+            c.fill();
+        }
+        update() {
+            this.draw();
+            this.position.x += this.velocity.x;
+            if (this.position.x < -50 || this.position.x > canvas.width + 50) this.active = false;
+        }
+    }
+
+    // --- FUNDO SYNTHWAVE ---
+    class Background {
+        constructor() {
+            this.gridOffset = 0;
+        }
+        draw() {
+            // Céu
+            let gradient = c.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, "#0a0a2a");
+            gradient.addColorStop(0.6, "#2b004f");
+            gradient.addColorStop(1, "#000");
+            c.fillStyle = gradient;
+            c.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Sol Retro
+            c.save();
+            let sunY = canvas.height - 180;
+            let sunGrad = c.createLinearGradient(0, sunY - 120, 0, sunY + 120);
+            sunGrad.addColorStop(0, "#ff007f");
+            sunGrad.addColorStop(1, "#ffaa00");
+            c.fillStyle = sunGrad;
+            c.shadowBlur = 50;
+            c.shadowColor = "#ff007f";
+            c.beginPath();
+            c.arc(canvas.width / 2, sunY, 120, 0, Math.PI, true); // Metade do sol
+            c.fill();
+            c.restore();
+
+            // Chão Grid de Perspectiva
+            c.fillStyle = '#050510';
+            c.fillRect(0, canvas.height - 150, canvas.width, 150);
+            
+            c.strokeStyle = '#00ffff';
+            c.lineWidth = 2;
+            c.shadowBlur = 5;
+            c.shadowColor = '#00ffff';
+            
+            // Linhas Horizontais animadas
+            this.gridOffset = (this.gridOffset + 1) % 30;
+            for(let i = 0; i < 6; i++) {
+                let y = canvas.height - 150 + (i * 30) + (this.gridOffset * (i*0.2));
+                if(y < canvas.height){
+                    c.beginPath();
+                    c.moveTo(0, y);
+                    c.lineTo(canvas.width, y);
+                    c.stroke();
+                }
+            }
+            // Linhas Verticais
+            let vanishPoint = canvas.width / 2;
+            for(let i = -15; i <= 15; i++) {
+                c.beginPath();
+                c.moveTo(vanishPoint, canvas.height - 150);
+                c.lineTo(vanishPoint + (i * 80), canvas.height);
+                c.stroke();
+            }
+            c.shadowBlur = 0;
+        }
+    }
+
+    // --- PERSONAGENS (LUTADORES) ---
+    class Fighter {
+        constructor({ position, color, id }) {
+            this.position = position;
+            this.velocity = { x: 0, y: 0 };
+            this.width = 60;
+            this.height = 140;
+            this.lastKey;
+            this.id = id;
+            this.facingRight = (id === 'p1'); // P1 olha direita, P2 esquerda
+            
+            this.attackBox = { position: { x: 0, y: 0 }, width: 80, height: 40 };
+            
+            this.color = color;
             this.isAttacking = false;
+            
             this.health = 100;
+            this.energy = 0; // Para o especial
             this.dead = false;
         }
 
         draw() {
-            // Efeito visual do personagem (Glow)
+            c.save();
+            // Glow geral
             c.shadowBlur = 15;
-            c.shadowColor = this.shadowColor;
+            c.shadowColor = this.color;
+            
+            // Desenhar pernas
+            c.fillStyle = '#222';
+            c.fillRect(this.position.x + 10, this.position.y + 90, 15, 50); // Perna Esq
+            c.fillRect(this.position.x + 35, this.position.y + 90, 15, 50); // Perna Dir
+
+            // Tronco (Armadura)
             c.fillStyle = this.color;
-            c.fillRect(this.position.x, this.position.y, this.width, this.height);
-            c.shadowBlur = 0; // Reseta sombra
+            c.fillRect(this.position.x + 5, this.position.y + 40, 50, 60);
+            
+            // Cabeça
+            c.beginPath();
+            c.arc(this.position.x + 30, this.position.y + 20, 20, 0, Math.PI * 2);
+            c.fillStyle = '#111';
+            c.fill();
+            c.lineWidth = 3;
+            c.strokeStyle = this.color;
+            c.stroke();
 
-            // Detalhe (olhos/viseira)
+            // Viseira (Olho brilhante)
             c.fillStyle = 'white';
-            c.fillRect(this.attackBox.offset.x > 0 ? this.position.x + 30 : this.position.x + 5, this.position.y + 15, 15, 10);
+            c.shadowColor = 'white';
+            c.shadowBlur = 10;
+            if (this.facingRight) {
+                c.fillRect(this.position.x + 30, this.position.y + 12, 15, 8);
+            } else {
+                c.fillRect(this.position.x + 15, this.position.y + 12, 15, 8);
+            }
 
-            // Desenhar caixa de ataque se estiver atacando
+            // Braço (Muda de posição se atacar)
+            c.fillStyle = '#444';
             if (this.isAttacking) {
-                c.fillStyle = 'white';
-                c.shadowBlur = 20;
-                c.shadowColor = 'white';
+                if (this.facingRight) {
+                    c.fillRect(this.position.x + 20, this.position.y + 45, 70, 15); // Soco Direita
+                } else {
+                    c.fillRect(this.position.x - 30, this.position.y + 45, 70, 15); // Soco Esquerda
+                }
+            } else {
+                c.fillRect(this.position.x + 20, this.position.y + 45, 20, 40); // Braço em repouso
+            }
+            c.restore();
+
+            // Desenhando caixa de ataque (Invisível no jogo final, serve só pro motor físico, mas vamos deixar um brilho pra impacto)
+            if (this.isAttacking) {
+                c.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-                c.shadowBlur = 0;
             }
         }
 
@@ -250,31 +415,64 @@
             this.draw();
             if (this.dead) return;
 
-            // Atualiza posição da caixa de ataque
-            this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-            this.attackBox.position.y = this.position.y + 20; // Altura do soco
+            // Define lado que o personagem está olhando baseado no movimento
+            if (this.velocity.x > 0) this.facingRight = true;
+            else if (this.velocity.x < 0) this.facingRight = false;
 
+            // Configura Caixa de Ataque (Hitbox do Soco)
+            this.attackBox.position.y = this.position.y + 35; 
+            if (this.facingRight) {
+                this.attackBox.position.x = this.position.x + 40;
+            } else {
+                this.attackBox.position.x = this.position.x - 60;
+            }
+
+            // Física de movimento
             this.position.x += this.velocity.x;
             this.position.y += this.velocity.y;
 
-            // Limite da tela (X)
+            // Limites da tela (X)
             if (this.position.x < 0) this.position.x = 0;
             if (this.position.x + this.width > canvas.width) this.position.x = canvas.width - this.width;
 
-            // Física de Gravidade e limite do chão (Y)
-            if (this.position.y + this.height + this.velocity.y >= canvas.height - 50) {
+            // Gravidade e chão (Y)
+            let ground = canvas.height - 100;
+            if (this.position.y + this.height + this.velocity.y >= ground) {
                 this.velocity.y = 0;
-                this.position.y = canvas.height - 50 - this.height;
+                this.position.y = ground - this.height;
             } else {
                 this.velocity.y += gravity;
+            }
+
+            // Carrega Energia passivamente
+            if (this.energy < 100) {
+                this.energy += 0.15;
+                document.getElementById(`${this.id}-energy`).style.width = this.energy + '%';
             }
         }
 
         attack() {
+            if (this.isAttacking) return;
             this.isAttacking = true;
-            setTimeout(() => {
-                this.isAttacking = false;
-            }, 100); // Tempo de duração do soco
+            setTimeout(() => { this.isAttacking = false; }, 150); // Duração mais rápida do soco
+        }
+
+        specialAttack() {
+            if (this.energy >= 100) {
+                this.energy = 0;
+                document.getElementById(`${this.id}-energy`).style.width = '0%';
+                
+                // Dispara projétil
+                let projVelX = this.facingRight ? 12 : -12;
+                let startX = this.facingRight ? this.position.x + 80 : this.position.x - 40;
+                
+                projectiles.push(new Projectile({
+                    position: { x: startX, y: this.position.y + 40 },
+                    velocity: { x: projVelX, y: 0 },
+                    color: this.color,
+                    owner: this.id
+                }));
+            }
         }
     }
 
@@ -282,41 +480,36 @@
 
     const player = new Fighter({
         position: { x: 150, y: 0 },
-        velocity: { x: 0, y: 0 },
-        color: '#4facfe',
-        shadowColor: '#00f2fe',
-        offset: { x: 0, y: 0 } // Bate para a direita
+        color: '#00ffff',
+        id: 'p1'
     });
 
     const enemy = new Fighter({
-        position: { x: 824, y: 0 },
-        velocity: { x: 0, y: 0 },
-        color: '#f5576c',
-        shadowColor: '#f093fb',
-        offset: { x: -50, y: 0 } // Bate para a esquerda
+        position: { x: 800, y: 0 },
+        color: '#ff00ff',
+        id: 'p2'
     });
+    enemy.facingRight = false; // P2 começa olhando para a esquerda
 
     const keys = {
-        a: { pressed: false },
-        d: { pressed: false },
-        w: { pressed: false },
-        ArrowLeft: { pressed: false },
-        ArrowRight: { pressed: false },
-        ArrowUp: { pressed: false }
+        a: { pressed: false }, d: { pressed: false }, w: { pressed: false },
+        ArrowLeft: { pressed: false }, ArrowRight: { pressed: false }, ArrowUp: { pressed: false }
     };
 
-    // Controle do Tempo e Fim de jogo
     let timer = 60;
     let timerId;
+    
     function determineWinner() {
         clearTimeout(timerId);
         document.getElementById('game-over').style.display = 'block';
         if (player.health === enemy.health) {
             document.getElementById('winner-text').innerText = 'EMPATE!';
         } else if (player.health > enemy.health) {
-            document.getElementById('winner-text').innerText = 'JOGADOR 1 VENCEU!';
+            document.getElementById('winner-text').innerText = 'JOGADOR 1 VENCE!';
+            document.getElementById('winner-text').style.color = '#00ffff';
         } else {
-            document.getElementById('winner-text').innerText = 'JOGADOR 2 VENCEU!';
+            document.getElementById('winner-text').innerText = 'JOGADOR 2 VENCE!';
+            document.getElementById('winner-text').style.color = '#ff00ff';
         }
     }
 
@@ -330,17 +523,26 @@
     }
     decreaseTimer();
 
-    // Detecção de Colisão
-    function rectangularCollision({ rect1, rect2 }) {
+    // Detecção de Colisão Soco vs Personagem
+    function hitCollision({ attacker, defender }) {
         return (
-            rect1.attackBox.position.x + rect1.attackBox.width >= rect2.position.x &&
-            rect1.attackBox.position.x <= rect2.position.x + rect2.width &&
-            rect1.attackBox.position.y + rect1.attackBox.height >= rect2.position.y &&
-            rect1.attackBox.position.y <= rect2.position.y + rect2.height
+            attacker.attackBox.position.x + attacker.attackBox.width >= defender.position.x &&
+            attacker.attackBox.position.x <= defender.position.x + defender.width &&
+            attacker.attackBox.position.y + attacker.attackBox.height >= defender.position.y &&
+            attacker.attackBox.position.y <= defender.position.y + defender.height
         );
     }
 
-    // Loop de Animação
+    // Detecção de Colisão Projétil vs Personagem
+    function projectileCollision(proj, def) {
+        return (
+            proj.position.x + proj.radius >= def.position.x &&
+            proj.position.x - proj.radius <= def.position.x + def.width &&
+            proj.position.y + proj.radius >= def.position.y &&
+            proj.position.y - proj.radius <= def.position.y + def.height
+        );
+    }
+
     function animate() {
         window.requestAnimationFrame(animate);
         c.fillStyle = 'black';
@@ -348,44 +550,66 @@
         
         background.draw();
         
+        // Atualiza Partículas
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+
+        // Atualiza Projéteis
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            let p = projectiles[i];
+            p.update();
+
+            // Verifica hit do projétil no inimigo
+            if (p.active && p.owner === 'p1' && projectileCollision(p, enemy)) {
+                p.active = false;
+                enemy.health -= 20; // Especial tira mais vida
+                createExplosion(p.position.x, p.position.y, player.color);
+                document.getElementById('p2-health').style.width = Math.max(0, enemy.health) + '%';
+            }
+            if (p.active && p.owner === 'p2' && projectileCollision(p, player)) {
+                p.active = false;
+                player.health -= 20;
+                createExplosion(p.position.x, p.position.y, enemy.color);
+                document.getElementById('p1-health').style.width = Math.max(0, player.health) + '%';
+            }
+            
+            if (!p.active) projectiles.splice(i, 1);
+        }
+
         player.update();
         enemy.update();
 
-        // Movimentação Jogador 1 (W, A, D)
+        // Movimentação J1
         player.velocity.x = 0;
-        if (keys.a.pressed && player.lastKey === 'a') {
-            player.velocity.x = -5;
-            player.attackBox.offset.x = -50; // Vira pra esquerda
-        } else if (keys.d.pressed && player.lastKey === 'd') {
-            player.velocity.x = 5;
-            player.attackBox.offset.x = 0; // Vira pra direita
-        }
+        if (keys.a.pressed && player.lastKey === 'a') player.velocity.x = -6;
+        else if (keys.d.pressed && player.lastKey === 'd') player.velocity.x = 6;
 
-        // Movimentação Jogador 2 (Setas)
+        // Movimentação J2
         enemy.velocity.x = 0;
-        if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') {
-            enemy.velocity.x = -5;
-            enemy.attackBox.offset.x = -50; // Vira pra esquerda
-        } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
-            enemy.velocity.x = 5;
-            enemy.attackBox.offset.x = 0; // Vira pra direita
-        }
+        if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') enemy.velocity.x = -6;
+        else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') enemy.velocity.x = 6;
 
-        // Detectar Colisões - Player atacando Enemy
-        if (rectangularCollision({ rect1: player, rect2: enemy }) && player.isAttacking) {
+        // Detectar Soco J1 -> J2
+        if (player.isAttacking && hitCollision({ attacker: player, defender: enemy })) {
             player.isAttacking = false;
-            enemy.health -= 10;
+            enemy.health -= 8;
+            player.energy = Math.min(100, player.energy + 15); // Ganha energia ao bater
+            createExplosion(player.attackBox.position.x + 40, player.attackBox.position.y + 20, '#fff');
             document.getElementById('p2-health').style.width = Math.max(0, enemy.health) + '%';
         }
 
-        // Detectar Colisões - Enemy atacando Player
-        if (rectangularCollision({ rect1: enemy, rect2: player }) && enemy.isAttacking) {
+        // Detectar Soco J2 -> J1
+        if (enemy.isAttacking && hitCollision({ attacker: enemy, defender: player })) {
             enemy.isAttacking = false;
-            player.health -= 10;
+            player.health -= 8;
+            enemy.energy = Math.min(100, enemy.energy + 15);
+            createExplosion(enemy.attackBox.position.x, enemy.attackBox.position.y + 20, '#fff');
             document.getElementById('p1-health').style.width = Math.max(0, player.health) + '%';
         }
 
-        // Fim de jogo por vida zerada
+        // Fim de jogo por morte
         if (enemy.health <= 0 || player.health <= 0) {
             if (enemy.health <= 0) enemy.dead = true;
             if (player.health <= 0) player.dead = true;
@@ -395,53 +619,32 @@
 
     animate();
 
-    // Eventos de Teclado
     window.addEventListener('keydown', (event) => {
         if (!player.dead && !enemy.dead) {
             switch (event.key) {
                 // Jogador 1
-                case 'd':
-                    keys.d.pressed = true;
-                    player.lastKey = 'd';
-                    break;
-                case 'a':
-                    keys.a.pressed = true;
-                    player.lastKey = 'a';
-                    break;
-                case 'w':
-                    if (player.velocity.y === 0) player.velocity.y = -15; // Pulo
-                    break;
-                case ' ':
-                    player.attack();
-                    break;
+                case 'd': keys.d.pressed = true; player.lastKey = 'd'; break;
+                case 'a': keys.a.pressed = true; player.lastKey = 'a'; break;
+                case 'w': if (player.velocity.y === 0) player.velocity.y = -18; break; // Pulo mais alto
+                case ' ': player.attack(); break;
+                case 'c': case 'C': player.specialAttack(); break; // Especial P1
 
                 // Jogador 2
-                case 'ArrowRight':
-                    keys.ArrowRight.pressed = true;
-                    enemy.lastKey = 'ArrowRight';
-                    break;
-                case 'ArrowLeft':
-                    keys.ArrowLeft.pressed = true;
-                    enemy.lastKey = 'ArrowLeft';
-                    break;
-                case 'ArrowUp':
-                    if (enemy.velocity.y === 0) enemy.velocity.y = -15;
-                    break;
-                case 'Enter':
-                    enemy.attack();
-                    break;
+                case 'ArrowRight': keys.ArrowRight.pressed = true; enemy.lastKey = 'ArrowRight'; break;
+                case 'ArrowLeft': keys.ArrowLeft.pressed = true; enemy.lastKey = 'ArrowLeft'; break;
+                case 'ArrowUp': if (enemy.velocity.y === 0) enemy.velocity.y = -18; break;
+                case 'Enter': enemy.attack(); break;
+                case 'Shift': enemy.specialAttack(); break; // Especial P2
             }
         }
     });
 
     window.addEventListener('keyup', (event) => {
         switch (event.key) {
-            // Jogador 1
             case 'd': keys.d.pressed = false; break;
             case 'a': keys.a.pressed = false; break;
-            // Jogador 2
             case 'ArrowRight': keys.ArrowRight.pressed = false; break;
-            case 'ArrowLeft':  keys.ArrowLeft.pressed = false; break;
+            case 'ArrowLeft': keys.ArrowLeft.pressed = false; break;
         }
     });
 </script>
