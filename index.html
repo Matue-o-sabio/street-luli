@@ -3,650 +3,591 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Synthwave Fighter</title>
+    <title>JoJo's Bizarre Adventure · Enciclopédia de Partes</title>
+    
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body {
+        /* ===== RESET & BASE ===== */
+        * {
             margin: 0;
             padding: 0;
-            background-color: #050510;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(22, 24, 34, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f3f8;
+            --text-muted: #a0a8b8;
+            --accent: #ffd700;
+            --accent-glow: rgba(255, 215, 0, 0.35);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+        }
+
+        /* Background Dinâmico com Gradiente Radial Sutil */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
             height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.6s ease;
+        }
+
+        /* ===== MENU DE ABAS ===== */
+        .header-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 12, 16, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0.8rem 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .tab-menu {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #0b0c10;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+            font-weight: 700;
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .container {
+            flex: 1;
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            width: 92%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .part-content {
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== CABEÇALHO DA PARTE ===== */
+        .part-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .part-number-badge {
+            display: inline-block;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.2rem;
+        }
+
+        .part-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.8rem;
+            letter-spacing: 3px;
+            line-height: 1;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            margin-bottom: 0.5rem;
+        }
+
+        .part-sub {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 1.5rem auto;
+            font-weight: 300;
+        }
+
+        /* TAGS DE METADADOS */
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tag span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ===== LAYOUT GRID (3 COLUNAS) ===== */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* CARDS DE PERSONAGENS */
+        .char-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 18px;
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .char-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px var(--accent-glow);
+            border-color: var(--accent);
+        }
+
+        .img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 380px;
             overflow: hidden;
         }
 
-        #game-container {
-            position: relative;
-            box-shadow: 0 0 40px rgba(255, 0, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.3);
-            border: 4px solid #222;
-            border-radius: 8px;
-            background: #000;
-        }
-
-        /* Interface (Vida e Energia) */
-        #ui-layer {
-            position: absolute;
-            top: 20px;
+        .char-img {
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
-            z-index: 10;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: transform 0.5s ease;
         }
 
-        .player-stats {
-            width: 40%;
+        .char-card:hover .char-img {
+            transform: scale(1.06);
+        }
+
+        .char-role-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+
+        .char-info {
+            padding: 1.2rem;
+            text-align: center;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .char-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            color: #fff;
+            line-height: 1.1;
+        }
+
+        /* TEXTO DA HISTÓRIA */
+        .story-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 1.8rem;
+            border: 1px solid var(--card-border);
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 1.2rem;
+            font-size: 1.05rem;
+            color: #e0e6ed;
         }
 
-        .health-bar-container {
-            width: 100%;
-            height: 25px;
-            background-color: #222;
-            border: 2px solid white;
-            border-radius: 5px;
-            overflow: hidden;
+        .story-box p {
+            line-height: 1.7;
         }
 
-        .health-bar {
-            height: 100%;
-            width: 100%;
-            transition: width 0.15s ease-out;
+        .highlight-box {
+            border-left: 3px solid var(--accent);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.98rem;
         }
 
-        .energy-bar-container {
-            width: 80%;
-            height: 10px;
-            background-color: #111;
-            border: 1px solid #555;
-            border-radius: 3px;
-            overflow: hidden;
+        /* ===== TEMAS POR PARTE (Cores Neons Modernas) ===== */
+        body.theme-p1 { --accent: #ff4757; --accent-glow: rgba(255, 71, 87, 0.3); }
+        body.theme-p2 { --accent: #2ed573; --accent-glow: rgba(46, 213, 115, 0.3); }
+        body.theme-p3 { --accent: #ffa502; --accent-glow: rgba(255, 165, 2, 0.3); }
+        body.theme-p4 { --accent: #ff78ae; --accent-glow: rgba(255, 120, 174, 0.3); }
+        body.theme-p5 { --accent: #eccc68; --accent-glow: rgba(236, 204, 104, 0.3); }
+        body.theme-p6 { --accent: #1e90ff; --accent-glow: rgba(30, 144, 255, 0.3); }
+        body.theme-p7 { --accent: #d2dae2; --accent-glow: rgba(210, 218, 226, 0.3); }
+        body.theme-p8 { --accent: #70a1ff; --accent-glow: rgba(112, 161, 255, 0.3); }
+        body.theme-p9 { --accent: #00d2d3; --accent-glow: rgba(0, 210, 211, 0.3); }
+
+        /* Backgrounds combinados */
+        body.theme-p1 .bg-overlay { background: radial-gradient(circle at 50% 20%, #3a1515 0%, #0b0c10 70%); }
+        body.theme-p2 .bg-overlay { background: radial-gradient(circle at 50% 20%, #173322 0%, #0b0c10 70%); }
+        body.theme-p3 .bg-overlay { background: radial-gradient(circle at 50% 20%, #3a2810 0%, #0b0c10 70%); }
+        body.theme-p4 .bg-overlay { background: radial-gradient(circle at 50% 20%, #3a1028 0%, #0b0c10 70%); }
+        body.theme-p5 .bg-overlay { background: radial-gradient(circle at 50% 20%, #3a3310 0%, #0b0c10 70%); }
+        body.theme-p6 .bg-overlay { background: radial-gradient(circle at 50% 20%, #10233a 0%, #0b0c10 70%); }
+        body.theme-p7 .bg-overlay { background: radial-gradient(circle at 50% 20%, #2b2b2b 0%, #0b0c10 70%); }
+        body.theme-p8 .bg-overlay { background: radial-gradient(circle at 50% 20%, #102b3a 0%, #0b0c10 70%); }
+        body.theme-p9 .bg-overlay { background: radial-gradient(circle at 50% 20%, #0a3a3a 0%, #0b0c10 70%); }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 1024px) {
+            .layout-grid {
+                grid-template-columns: 240px 1fr 240px;
+                gap: 1.5rem;
+            }
+            .img-wrapper { height: 320px; }
+            .part-title { font-size: 3rem; }
         }
 
-        .energy-bar {
-            height: 100%;
-            width: 0%; /* Começa zerada */
-            transition: width 0.1s linear;
+        @media (max-width: 850px) {
+            .layout-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: 
+                    "hero villain"
+                    "story story";
+            }
+            .hero-card { grid-area: hero; }
+            .villain-card { grid-area: villain; }
+            .story-box { grid-area: story; }
+            .container { padding: 1.5rem; }
+            .part-title { font-size: 2.5rem; }
         }
 
-        #p1-health { background: linear-gradient(90deg, #00f2fe, #4facfe); box-shadow: 0 0 10px #00f2fe; }
-        #p2-health { background: linear-gradient(90deg, #f5576c, #f093fb); box-shadow: 0 0 10px #f5576c; float: right; }
-        
-        #p1-energy { background: #00ffff; box-shadow: 0 0 8px #00ffff; }
-        #p2-energy { background: #ff00ff; box-shadow: 0 0 8px #ff00ff; float: right; }
-
-        .p2-stats { align-items: flex-end; }
-
-        #timer {
-            font-size: 38px;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 15px #fff, 0 0 30px #ff00ff;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px 20px;
-            border-radius: 10px;
-            border: 2px solid #fff;
+        @media (max-width: 520px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "hero"
+                    "story"
+                    "villain";
+            }
+            .img-wrapper { height: 360px; }
+            .tab-btn { font-size: 0.95rem; padding: 0.4rem 0.8rem; }
         }
-
-        #game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 50px;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff;
-            display: none;
-            text-align: center;
-            background: rgba(10, 10, 20, 0.85);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid #fff;
-            z-index: 20;
-            text-transform: uppercase;
-        }
-
-        .restart-btn {
-            margin-top: 20px;
-            padding: 12px 25px;
-            font-size: 22px;
-            cursor: pointer;
-            background: linear-gradient(90deg, #00f2fe, #f093fb);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
-            transition: 0.2s;
-        }
-        
-        .restart-btn:hover { transform: scale(1.05); }
-
-        /* Controles */
-        #controls {
-            display: flex;
-            justify-content: space-between;
-            width: 1024px;
-            margin-top: 15px;
-            background: rgba(20, 20, 30, 0.9);
-            padding: 15px 30px;
-            border-radius: 8px;
-            box-sizing: border-box;
-            border: 1px solid #333;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .control-panel { text-align: center; font-size: 15px;}
-        .p1-color { color: #00ffff; text-shadow: 0 0 8px #00ffff; margin: 0 0 10px 0;}
-        .p2-color { color: #ff00ff; text-shadow: 0 0 8px #ff00ff; margin: 0 0 10px 0;}
-        
-        kbd {
-            background-color: #111;
-            border-radius: 4px;
-            border: 1px solid #00ffff;
-            color: #fff;
-            padding: 3px 8px;
-            font-family: monospace;
-            font-weight: bold;
-            margin: 0 3px;
-            box-shadow: 0 0 5px rgba(0,255,255,0.3);
-        }
-        .kbd-p2 { border-color: #ff00ff; box-shadow: 0 0 5px rgba(255,0,255,0.3); }
     </style>
 </head>
-<body>
+<body class="theme-p1">
 
-    <div id="game-container">
-        <div id="ui-layer">
-            <div class="player-stats">
-                <div class="health-bar-container"><div id="p1-health" class="health-bar"></div></div>
-                <div class="energy-bar-container"><div id="p1-energy" class="energy-bar"></div></div>
-            </div>
-            <div id="timer">60</div>
-            <div class="player-stats p2-stats">
-                <div class="health-bar-container"><div id="p2-health" class="health-bar"></div></div>
-                <div class="energy-bar-container"><div id="p2-energy" class="energy-bar"></div></div>
-            </div>
+    <div class="bg-overlay"></div>
+
+    <!-- MENU DE ABAS -->
+    <header class="header-nav">
+        <nav class="tab-menu" id="tabMenu">
+            <button class="tab-btn active" data-part="1">Parte 1</button>
+            <button class="tab-btn" data-part="2">Parte 2</button>
+            <button class="tab-btn" data-part="3">Parte 3</button>
+            <button class="tab-btn" data-part="4">Parte 4</button>
+            <button class="tab-btn" data-part="5">Parte 5</button>
+            <button class="tab-btn" data-part="6">Parte 6</button>
+            <button class="tab-btn" data-part="7">Parte 7</button>
+            <button class="tab-btn" data-part="8">Parte 8</button>
+            <button class="tab-btn" data-part="9">Parte 9</button>
+        </nav>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container">
+        <div id="partDisplay" class="part-content">
+            <!-- Injetado dinamicamente via JS -->
         </div>
+    </main>
 
-        <div id="game-over">
-            <span id="winner-text">Empate!</span><br>
-            <button class="restart-btn" onclick="location.reload()">Lutar Novamente</button>
-        </div>
-
-        <canvas id="gameCanvas" width="1024" height="576"></canvas>
-    </div>
-
-    <div id="controls">
-        <div class="control-panel">
-            <h3 class="p1-color">JOGADOR 1 (Ciborgue)</h3>
-            <p>Mover: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></p>
-            <p>Soco: <kbd>Espaço</kbd> | Especial: <kbd>C</kbd></p>
-        </div>
-        <div class="control-panel">
-            <h3 class="p2-color">JOGADOR 2 (Ninja)</h3>
-            <p>Mover: <kbd class="kbd-p2">↑</kbd> <kbd class="kbd-p2">←</kbd> <kbd class="kbd-p2">↓</kbd> <kbd class="kbd-p2">→</kbd></p>
-            <p>Soco: <kbd class="kbd-p2">Enter</kbd> | Especial: <kbd class="kbd-p2">Shift</kbd></p>
-        </div>
-    </div>
-
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const c = canvas.getContext('2d');
-    const gravity = 0.8;
-
-    // --- SISTEMA DE PARTÍCULAS ---
-    const particles = [];
-    class Particle {
-        constructor({ position, velocity, color }) {
-            this.position = position;
-            this.velocity = velocity;
-            this.color = color;
-            this.radius = Math.random() * 3 + 1;
-            this.life = 1; // 100%
-        }
-        draw() {
-            c.save();
-            c.globalAlpha = this.life;
-            c.beginPath();
-            c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-            c.fillStyle = this.color;
-            c.shadowBlur = 10;
-            c.shadowColor = this.color;
-            c.fill();
-            c.restore();
-        }
-        update() {
-            this.draw();
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
-            this.life -= 0.04; // Desaparece aos poucos
-        }
-    }
-
-    function createExplosion(x, y, color) {
-        for (let i = 0; i < 15; i++) {
-            particles.push(new Particle({
-                position: { x, y },
-                velocity: { x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10 },
-                color: color
-            }));
-        }
-    }
-
-    // --- PROJÉTEIS (ESPECIAIS) ---
-    const projectiles = [];
-    class Projectile {
-        constructor({ position, velocity, color, owner }) {
-            this.position = position;
-            this.velocity = velocity;
-            this.color = color;
-            this.owner = owner; // 'p1' ou 'p2'
-            this.radius = 15;
-            this.active = true;
-        }
-        draw() {
-            c.beginPath();
-            c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-            c.fillStyle = 'white';
-            c.shadowBlur = 20;
-            c.shadowColor = this.color;
-            c.fill();
-            c.closePath();
-            
-            // Rastro
-            c.beginPath();
-            c.arc(this.position.x - (this.velocity.x * 2), this.position.y, this.radius * 0.6, 0, Math.PI * 2);
-            c.fillStyle = this.color;
-            c.fill();
-        }
-        update() {
-            this.draw();
-            this.position.x += this.velocity.x;
-            if (this.position.x < -50 || this.position.x > canvas.width + 50) this.active = false;
-        }
-    }
-
-    // --- FUNDO SYNTHWAVE ---
-    class Background {
-        constructor() {
-            this.gridOffset = 0;
-        }
-        draw() {
-            // Céu
-            let gradient = c.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, "#0a0a2a");
-            gradient.addColorStop(0.6, "#2b004f");
-            gradient.addColorStop(1, "#000");
-            c.fillStyle = gradient;
-            c.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Sol Retro
-            c.save();
-            let sunY = canvas.height - 180;
-            let sunGrad = c.createLinearGradient(0, sunY - 120, 0, sunY + 120);
-            sunGrad.addColorStop(0, "#ff007f");
-            sunGrad.addColorStop(1, "#ffaa00");
-            c.fillStyle = sunGrad;
-            c.shadowBlur = 50;
-            c.shadowColor = "#ff007f";
-            c.beginPath();
-            c.arc(canvas.width / 2, sunY, 120, 0, Math.PI, true); // Metade do sol
-            c.fill();
-            c.restore();
-
-            // Chão Grid de Perspectiva
-            c.fillStyle = '#050510';
-            c.fillRect(0, canvas.height - 150, canvas.width, 150);
-            
-            c.strokeStyle = '#00ffff';
-            c.lineWidth = 2;
-            c.shadowBlur = 5;
-            c.shadowColor = '#00ffff';
-            
-            // Linhas Horizontais animadas
-            this.gridOffset = (this.gridOffset + 1) % 30;
-            for(let i = 0; i < 6; i++) {
-                let y = canvas.height - 150 + (i * 30) + (this.gridOffset * (i*0.2));
-                if(y < canvas.height){
-                    c.beginPath();
-                    c.moveTo(0, y);
-                    c.lineTo(canvas.width, y);
-                    c.stroke();
+    <script>
+        (function() {
+            // ===== DADOS ATUALIZADOS E ENRIQUECIDOS =====
+            const partesData = {
+                1: {
+                    titulo: "Phantom Blood",
+                    subtitulo: "A origem da máscara de pedra e o destino selado de dois irmãos.",
+                    ano: "1880",
+                    local: "Inglaterra",
+                    sistema: "Hamon (Ondas)",
+                    nomeHeroi: "Jonathan Joestar",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/7/7b/Jonathan_Anime.png",
+                    nomeVilao: "Dio Brando",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/2/2a/Dio_Brando_Anime.png",
+                    texto: `<p>Na Inglaterra do século XIX, o jovem nobre Jonathan Joestar vê sua vida mudar drasticamente com a chegada de seu irmão adotivo, Dio Brando. Impulsionado por uma ambição desmedida, Dio descobre os segredos sombrios de uma antiga Máscara de Pedra Mesoamericana, transformando-se em um vampiro imortal.</p>
+                            <div class="highlight-box">Conceito Chave: Introdução do Hamon — a arte marcial baseada na respiração do sol usada para dissipar as sombras do mal.</div>`
+                },
+                2: {
+                    titulo: "Battle Tendency",
+                    subtitulo: "O despertar dos criadores da máscara e a luta pelo ser supremo.",
+                    ano: "1938",
+                    local: "Europa / EUA",
+                    sistema: "Hamon Tático",
+                    nomeHeroi: "Joseph Joestar",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/0/03/Joseph_Joestar_Infobox_Anime.png",
+                    nomeVilao: "Kars",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/3/33/Kars_Infobox_Anime.png",
+                    texto: `<p>Anos após o sacrifício de Jonathan, seu neto Joseph Joestar — imprevisível, sarcástico e genial — precisa enfrentar uma ameaça ainda maior: os Deuses do Pilar. Seres milenares que criaram as Máscaras de Pedra e buscam a Pedra Sola de Super Aja para se tornarem imortais invencíveis.</p>
+                            <div class="highlight-box">Destaque: Batalhas estratégicas e cheias de truques substituem a força bruta convencional.</div>`
+                },
+                3: {
+                    titulo: "Stardust Crusaders",
+                    subtitulo: "Uma jornada transcontinental para salvar uma mãe e destruir uma maldição.",
+                    ano: "1989",
+                    local: "Japão ao Egito",
+                    sistema: "Stands (Tarô/Egípcio)",
+                    nomeHeroi: "Jotaro Kujo",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/6/69/Jotaro_SC_Infobox_Anime.png",
+                    nomeVilao: "DIO",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/6/63/DIO_SC_Infobox_Anime.png",
+                    texto: `<p>Quando DIO desperta no fundo do oceano usando o corpo de Jonathan, uma onda espiritual desperta "Stands" na linhagem Joestar. Para salvar sua mãe Holy de uma febre mortal causada por essa energia, Jotaro Kujo embarca em uma viagem de 50 dias rumo ao Egito com seus fiéis companheiros.</p>
+                            <div class="highlight-box">Revolução da Série: A introdução dos Stands revolucionou os mangás shonen modernos.</div>`
+                },
+                4: {
+                    titulo: "Diamond is Unbreakable",
+                    subtitulo: "Segredos sombrios escondidos sob a fachada de uma pacata cidade suburbana.",
+                    ano: "1999",
+                    local: "Morioh, Japão",
+                    sistema: "Stands de Curto Alcance",
+                    nomeHeroi: "Josuke Higashikata",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/1/1a/Josuke_DU_Infobox_Anime.png",
+                    nomeVilao: "Yoshikage Kira",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/d/df/Kira_DU_Infobox_Anime.png",
+                    texto: `<p>Na vibrante e aparentemente pacífica cidade de Morioh, o jovem Josuke Higashikata (filho ilegítimo de Joseph) descobre que um Arco e Flecha místico está criando novos usuários de Stand. Junto a seus amigos, ele investiga a presença de Yoshikage Kira, um serial killer discreto que deseja apenas manter sua rotina macabra ocultada.</p>
+                            <div class="highlight-box">Estilo: Mistério policial combinado com comédia e o cotidiano escolar dos anos 90.</div>`
+                },
+                5: {
+                    titulo: "Golden Wind",
+                    subtitulo: "A ambição de transformar a máfia e restaurar a honra nas ruas de Nápoles.",
+                    ano: "2001",
+                    local: "Itália",
+                    sistema: "Stands Evolutivos",
+                    nomeHeroi: "Giorno Giovanna",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/e/e0/Giorno_GW_Infobox_Anime.png",
+                    nomeVilao: "Diavolo",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/d/da/Diavolo_GW_Infobox_Anime.png",
+                    texto: `<p>Filho biológico de DIO (no corpo de Jonathan), Giorno Giovanna vive em Nápoles e sonha em se tornar um "Gang-Star". Ao juntar-se à equipe de Bruno Bucciarati na máfia Passione, ele tenta derrubar o chefe misterioso Diavolo, que trafica drogas para crianças e apaga implacavelmente os vestígios de seu passado.</p>
+                            <div class="highlight-box">Tema: O destino inescapável e a determinação inabalável diante da opressão.</div>`
+                },
+                6: {
+                    titulo: "Stone Ocean",
+                    subtitulo: "Conspiração no presídio e a batalha final pela reescrita da realidade.",
+                    ano: "2011",
+                    local: "Flórida, EUA",
+                    sistema: "Stands de Manipulação",
+                    nomeHeroi: "Jolyne Cujo",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/3/30/Jolyne_SO_Infobox_Anime.png",
+                    nomeVilao: "Enrico Pucci",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/f/f2/Pucci_SO_Infobox_Anime.png",
+                    texto: `<p>Acusada injustamente por um crime que não cometeu, Jolyne Cujo é enviada à Prisão de Segurança Máxima Green Dolphin Street. Lá, ela descobre uma armadilha orquestrada pelo Pe. Enrico Pucci, um seguidor de DIO que busca as memórias de Jotaro para completar um plano capaz de redefinir o próprio universo.</p>
+                            <div class="highlight-box">Clímax: Encerra o universo original da franquia JoJo em uma escala apocalíptica.</div>`
+                },
+                7: {
+                    titulo: "Steel Ball Run",
+                    subtitulo: "Uma mítica corrida a cavalo pelos EUA em busca de relíquias sagradas.",
+                    ano: "1890",
+                    local: "Estados Unidos",
+                    sistema: "O Spin & Stands",
+                    nomeHeroi: "Johnny Joestar",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/d/d4/Johnny_Joestar_SBR_Infobox.png",
+                    nomeVilao: "Funny Valentine",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/6/6d/Funny_Valentine_SBR_Infobox.png",
+                    texto: `<p>Reinício da franquia num universo alternativo. Johnny Joestar, um ex-jóquei paraplégico, une-se ao misterioso Gyro Zeppeli para competir na Steel Ball Run — uma corrida de 6.000 km cruzando os Estados Unidos. No entanto, por trás da competição, o Presidente Funny Valentine tenta reunir as partes do Corpo Santo para garantir a supremacia de sua nação.</p>
+                            <div class="highlight-box">Inovação: Substituição do Hamon pela mecânica física e mística do "Spin" (Rotação).</div>`
+                },
+                8: {
+                    titulo: "JoJolion",
+                    subtitulo: "Amnésia, segredos de família e a maldição de uma linhagem costeira.",
+                    ano: "2011",
+                    local: "Morioh (Universo Novo)",
+                    sistema: "Stands de Calamidade",
+                    nomeHeroi: "Josuke (Gappy)",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/6/60/Josuke_JJL_Infobox.png",
+                    nomeVilao: "Tooru",
+                    imgVilao: "https://static.wikia.nocookie.net/jjba/images/1/1a/Tooru_JJL_Infobox.png",
+                    texto: `<p>Após o grande terremoto de 2011 em Morioh, um jovem nu e com amnésia é encontrado enterrado perto dos estranhos "Olhos da Palma". Adotado pela abastada família Higashikata sob o nome de Josuke, ele precisa recuperar suas memórias enquanto enfrenta seres de pedra imortais que comercializam a lendária fruta Locacaca.</p>
+                            <div class="highlight-box">Estilo: Mistério denso com foco em biologia, milagres e trocas equivalentes.</div>`
+                },
+                9: {
+                    titulo: "The JOJOLands",
+                    subtitulo: "Ambição, negócios sombrios e a busca por riqueza no arquipélago havaiano.",
+                    ano: "Contemporâneo",
+                    local: "Havaí, EUA",
+                    sistema: "Stands de Ameaça Ambiental",
+                    nomeHeroi: "Jodio Joestar",
+                    imgHeroi: "https://static.wikia.nocookie.net/jjba/images/7/77/Jodio_Joestar_TJL_Infobox.png",
+                    nomeVilao: "Misterioso / A Revelar",
+                    imgVilao: "https://via.placeholder.com/400x600/111216/ffffff?text=Em+Desenvolvimento",
+                    texto: `<p>Nas ilhas do Havaí, o jovem Jodio Joestar vive sob a premissa de que o mundo é governado por "mecanismos de poder e riqueza". Atuando como receptador e membro de uma gangue juvenil ao lado de seu irmão Dragona, um roubo aparentemente simples de um diamante os coloca no radar de conspirações com pedras misteriosas que atraem valor.</p>
+                            <div class="highlight-box">Atualidade: Parte em publicação ativa iniciada em 2023.</div>`
                 }
+            };
+
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const displayDiv = document.getElementById('partDisplay');
+            const body = document.body;
+
+            // Função para carregar e renderizar os dados da parte
+            function loadPart(partNumber) {
+                const data = partesData[partNumber];
+                if (!data) return;
+
+                // Animação de entrada
+                displayDiv.classList.remove('part-content');
+                void displayDiv.offsetWidth; // Forçar reflow
+                displayDiv.classList.add('part-content');
+
+                // Renderização do HTML Interno
+                displayDiv.innerHTML = `
+                    <div class="part-header">
+                        <span class="part-number-badge">Parte 0${partNumber}</span>
+                        <h1 class="part-title">${data.titulo}</h1>
+                        <p class="part-sub">${data.subtitulo}</p>
+                        
+                        <div class="meta-tags">
+                            <div class="tag">Ano: <span>${data.ano}</span></div>
+                            <div class="tag">Local: <span>${data.local}</span></div>
+                            <div class="tag">Poder: <span>${data.sistema}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="layout-grid">
+                        <!-- HERO CARD -->
+                        <div class="char-card hero-card">
+                            <div class="img-wrapper">
+                                <span class="char-role-badge">Protagonista</span>
+                                <img src="${data.imgHeroi}" alt="${data.nomeHeroi}" class="char-img" onerror="this.src='https://via.placeholder.com/400x600/1a1d28/ffffff?text=${encodeURIComponent(data.nomeHeroi)}'">
+                            </div>
+                            <div class="char-info">
+                                <h3 class="char-name">${data.nomeHeroi}</h3>
+                            </div>
+                        </div>
+                        
+                        <!-- STORY TEXT -->
+                        <div class="story-box">
+                            ${data.texto}
+                        </div>
+                        
+                        <!-- VILLAIN CARD -->
+                        <div class="char-card villain-card">
+                            <div class="img-wrapper">
+                                <span class="char-role-badge">Antagonista</span>
+                                <img src="${data.imgVilao}" alt="${data.nomeVilao}" class="char-img" onerror="this.src='https://via.placeholder.com/400x600/1a1d28/ffffff?text=${encodeURIComponent(data.nomeVilao)}'">
+                            </div>
+                            <div class="char-info">
+                                <h3 class="char-name">${data.nomeVilao}</h3>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Atualizar estado visual do menu
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                const activeBtn = document.querySelector(`.tab-btn[data-part="${partNumber}"]`);
+                if (activeBtn) activeBtn.classList.add('active');
+
+                // Atualizar tema dinamico da pagina
+                body.className = body.className.split(' ').filter(c => !c.startsWith('theme-p')).join(' ');
+                body.classList.add(`theme-p${partNumber}`);
             }
-            // Linhas Verticais
-            let vanishPoint = canvas.width / 2;
-            for(let i = -15; i <= 15; i++) {
-                c.beginPath();
-                c.moveTo(vanishPoint, canvas.height - 150);
-                c.lineTo(vanishPoint + (i * 80), canvas.height);
-                c.stroke();
-            }
-            c.shadowBlur = 0;
-        }
-    }
 
-    // --- PERSONAGENS (LUTADORES) ---
-    class Fighter {
-        constructor({ position, color, id }) {
-            this.position = position;
-            this.velocity = { x: 0, y: 0 };
-            this.width = 60;
-            this.height = 140;
-            this.lastKey;
-            this.id = id;
-            this.facingRight = (id === 'p1'); // P1 olha direita, P2 esquerda
-            
-            this.attackBox = { position: { x: 0, y: 0 }, width: 80, height: 40 };
-            
-            this.color = color;
-            this.isAttacking = false;
-            
-            this.health = 100;
-            this.energy = 0; // Para o especial
-            this.dead = false;
-        }
+            // Event Listener nos botões do menu
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    loadPart(parseInt(this.dataset.part, 10));
+                });
+            });
 
-        draw() {
-            c.save();
-            // Glow geral
-            c.shadowBlur = 15;
-            c.shadowColor = this.color;
-            
-            // Desenhar pernas
-            c.fillStyle = '#222';
-            c.fillRect(this.position.x + 10, this.position.y + 90, 15, 50); // Perna Esq
-            c.fillRect(this.position.x + 35, this.position.y + 90, 15, 50); // Perna Dir
-
-            // Tronco (Armadura)
-            c.fillStyle = this.color;
-            c.fillRect(this.position.x + 5, this.position.y + 40, 50, 60);
-            
-            // Cabeça
-            c.beginPath();
-            c.arc(this.position.x + 30, this.position.y + 20, 20, 0, Math.PI * 2);
-            c.fillStyle = '#111';
-            c.fill();
-            c.lineWidth = 3;
-            c.strokeStyle = this.color;
-            c.stroke();
-
-            // Viseira (Olho brilhante)
-            c.fillStyle = 'white';
-            c.shadowColor = 'white';
-            c.shadowBlur = 10;
-            if (this.facingRight) {
-                c.fillRect(this.position.x + 30, this.position.y + 12, 15, 8);
-            } else {
-                c.fillRect(this.position.x + 15, this.position.y + 12, 15, 8);
-            }
-
-            // Braço (Muda de posição se atacar)
-            c.fillStyle = '#444';
-            if (this.isAttacking) {
-                if (this.facingRight) {
-                    c.fillRect(this.position.x + 20, this.position.y + 45, 70, 15); // Soco Direita
-                } else {
-                    c.fillRect(this.position.x - 30, this.position.y + 45, 70, 15); // Soco Esquerda
+            // Atalhos numéricos no teclado (1-9)
+            document.addEventListener('keydown', (e) => {
+                const num = parseInt(e.key, 10);
+                if (num >= 1 && num <= 9) {
+                    loadPart(num);
                 }
-            } else {
-                c.fillRect(this.position.x + 20, this.position.y + 45, 20, 40); // Braço em repouso
-            }
-            c.restore();
+            });
 
-            // Desenhando caixa de ataque (Invisível no jogo final, serve só pro motor físico, mas vamos deixar um brilho pra impacto)
-            if (this.isAttacking) {
-                c.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-            }
-        }
-
-        update() {
-            this.draw();
-            if (this.dead) return;
-
-            // Define lado que o personagem está olhando baseado no movimento
-            if (this.velocity.x > 0) this.facingRight = true;
-            else if (this.velocity.x < 0) this.facingRight = false;
-
-            // Configura Caixa de Ataque (Hitbox do Soco)
-            this.attackBox.position.y = this.position.y + 35; 
-            if (this.facingRight) {
-                this.attackBox.position.x = this.position.x + 40;
-            } else {
-                this.attackBox.position.x = this.position.x - 60;
-            }
-
-            // Física de movimento
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
-
-            // Limites da tela (X)
-            if (this.position.x < 0) this.position.x = 0;
-            if (this.position.x + this.width > canvas.width) this.position.x = canvas.width - this.width;
-
-            // Gravidade e chão (Y)
-            let ground = canvas.height - 100;
-            if (this.position.y + this.height + this.velocity.y >= ground) {
-                this.velocity.y = 0;
-                this.position.y = ground - this.height;
-            } else {
-                this.velocity.y += gravity;
-            }
-
-            // Carrega Energia passivamente
-            if (this.energy < 100) {
-                this.energy += 0.15;
-                document.getElementById(`${this.id}-energy`).style.width = this.energy + '%';
-            }
-        }
-
-        attack() {
-            if (this.isAttacking) return;
-            this.isAttacking = true;
-            setTimeout(() => { this.isAttacking = false; }, 150); // Duração mais rápida do soco
-        }
-
-        specialAttack() {
-            if (this.energy >= 100) {
-                this.energy = 0;
-                document.getElementById(`${this.id}-energy`).style.width = '0%';
-                
-                // Dispara projétil
-                let projVelX = this.facingRight ? 12 : -12;
-                let startX = this.facingRight ? this.position.x + 80 : this.position.x - 40;
-                
-                projectiles.push(new Projectile({
-                    position: { x: startX, y: this.position.y + 40 },
-                    velocity: { x: projVelX, y: 0 },
-                    color: this.color,
-                    owner: this.id
-                }));
-            }
-        }
-    }
-
-    const background = new Background();
-
-    const player = new Fighter({
-        position: { x: 150, y: 0 },
-        color: '#00ffff',
-        id: 'p1'
-    });
-
-    const enemy = new Fighter({
-        position: { x: 800, y: 0 },
-        color: '#ff00ff',
-        id: 'p2'
-    });
-    enemy.facingRight = false; // P2 começa olhando para a esquerda
-
-    const keys = {
-        a: { pressed: false }, d: { pressed: false }, w: { pressed: false },
-        ArrowLeft: { pressed: false }, ArrowRight: { pressed: false }, ArrowUp: { pressed: false }
-    };
-
-    let timer = 60;
-    let timerId;
-    
-    function determineWinner() {
-        clearTimeout(timerId);
-        document.getElementById('game-over').style.display = 'block';
-        if (player.health === enemy.health) {
-            document.getElementById('winner-text').innerText = 'EMPATE!';
-        } else if (player.health > enemy.health) {
-            document.getElementById('winner-text').innerText = 'JOGADOR 1 VENCE!';
-            document.getElementById('winner-text').style.color = '#00ffff';
-        } else {
-            document.getElementById('winner-text').innerText = 'JOGADOR 2 VENCE!';
-            document.getElementById('winner-text').style.color = '#ff00ff';
-        }
-    }
-
-    function decreaseTimer() {
-        if (timer > 0) {
-            timerId = setTimeout(decreaseTimer, 1000);
-            timer--;
-            document.getElementById('timer').innerText = timer;
-        }
-        if (timer === 0) determineWinner();
-    }
-    decreaseTimer();
-
-    // Detecção de Colisão Soco vs Personagem
-    function hitCollision({ attacker, defender }) {
-        return (
-            attacker.attackBox.position.x + attacker.attackBox.width >= defender.position.x &&
-            attacker.attackBox.position.x <= defender.position.x + defender.width &&
-            attacker.attackBox.position.y + attacker.attackBox.height >= defender.position.y &&
-            attacker.attackBox.position.y <= defender.position.y + defender.height
-        );
-    }
-
-    // Detecção de Colisão Projétil vs Personagem
-    function projectileCollision(proj, def) {
-        return (
-            proj.position.x + proj.radius >= def.position.x &&
-            proj.position.x - proj.radius <= def.position.x + def.width &&
-            proj.position.y + proj.radius >= def.position.y &&
-            proj.position.y - proj.radius <= def.position.y + def.height
-        );
-    }
-
-    function animate() {
-        window.requestAnimationFrame(animate);
-        c.fillStyle = 'black';
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        
-        background.draw();
-        
-        // Atualiza Partículas
-        for (let i = particles.length - 1; i >= 0; i--) {
-            particles[i].update();
-            if (particles[i].life <= 0) particles.splice(i, 1);
-        }
-
-        // Atualiza Projéteis
-        for (let i = projectiles.length - 1; i >= 0; i--) {
-            let p = projectiles[i];
-            p.update();
-
-            // Verifica hit do projétil no inimigo
-            if (p.active && p.owner === 'p1' && projectileCollision(p, enemy)) {
-                p.active = false;
-                enemy.health -= 20; // Especial tira mais vida
-                createExplosion(p.position.x, p.position.y, player.color);
-                document.getElementById('p2-health').style.width = Math.max(0, enemy.health) + '%';
-            }
-            if (p.active && p.owner === 'p2' && projectileCollision(p, player)) {
-                p.active = false;
-                player.health -= 20;
-                createExplosion(p.position.x, p.position.y, enemy.color);
-                document.getElementById('p1-health').style.width = Math.max(0, player.health) + '%';
-            }
-            
-            if (!p.active) projectiles.splice(i, 1);
-        }
-
-        player.update();
-        enemy.update();
-
-        // Movimentação J1
-        player.velocity.x = 0;
-        if (keys.a.pressed && player.lastKey === 'a') player.velocity.x = -6;
-        else if (keys.d.pressed && player.lastKey === 'd') player.velocity.x = 6;
-
-        // Movimentação J2
-        enemy.velocity.x = 0;
-        if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') enemy.velocity.x = -6;
-        else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') enemy.velocity.x = 6;
-
-        // Detectar Soco J1 -> J2
-        if (player.isAttacking && hitCollision({ attacker: player, defender: enemy })) {
-            player.isAttacking = false;
-            enemy.health -= 8;
-            player.energy = Math.min(100, player.energy + 15); // Ganha energia ao bater
-            createExplosion(player.attackBox.position.x + 40, player.attackBox.position.y + 20, '#fff');
-            document.getElementById('p2-health').style.width = Math.max(0, enemy.health) + '%';
-        }
-
-        // Detectar Soco J2 -> J1
-        if (enemy.isAttacking && hitCollision({ attacker: enemy, defender: player })) {
-            enemy.isAttacking = false;
-            player.health -= 8;
-            enemy.energy = Math.min(100, enemy.energy + 15);
-            createExplosion(enemy.attackBox.position.x, enemy.attackBox.position.y + 20, '#fff');
-            document.getElementById('p1-health').style.width = Math.max(0, player.health) + '%';
-        }
-
-        // Fim de jogo por morte
-        if (enemy.health <= 0 || player.health <= 0) {
-            if (enemy.health <= 0) enemy.dead = true;
-            if (player.health <= 0) player.dead = true;
-            determineWinner();
-        }
-    }
-
-    animate();
-
-    window.addEventListener('keydown', (event) => {
-        if (!player.dead && !enemy.dead) {
-            switch (event.key) {
-                // Jogador 1
-                case 'd': keys.d.pressed = true; player.lastKey = 'd'; break;
-                case 'a': keys.a.pressed = true; player.lastKey = 'a'; break;
-                case 'w': if (player.velocity.y === 0) player.velocity.y = -18; break; // Pulo mais alto
-                case ' ': player.attack(); break;
-                case 'c': case 'C': player.specialAttack(); break; // Especial P1
-
-                // Jogador 2
-                case 'ArrowRight': keys.ArrowRight.pressed = true; enemy.lastKey = 'ArrowRight'; break;
-                case 'ArrowLeft': keys.ArrowLeft.pressed = true; enemy.lastKey = 'ArrowLeft'; break;
-                case 'ArrowUp': if (enemy.velocity.y === 0) enemy.velocity.y = -18; break;
-                case 'Enter': enemy.attack(); break;
-                case 'Shift': enemy.specialAttack(); break; // Especial P2
-            }
-        }
-    });
-
-    window.addEventListener('keyup', (event) => {
-        switch (event.key) {
-            case 'd': keys.d.pressed = false; break;
-            case 'a': keys.a.pressed = false; break;
-            case 'ArrowRight': keys.ArrowRight.pressed = false; break;
-            case 'ArrowLeft': keys.ArrowLeft.pressed = false; break;
-        }
-    });
-</script>
+            // Carregamento inicial (Parte 1)
+            loadPart(1);
+        })();
+    </script>
 </body>
 </html>
