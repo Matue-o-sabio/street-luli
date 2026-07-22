@@ -1,747 +1,505 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Infraestrutura de Redes Industriais</title>
+  <title>Grimório Arcano IoT — Tríade de Orbes</title>
   
-  <!-- Fonts & Icons -->
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Paho MQTT CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+  
+  <!-- Google Fonts para Estética Medieval / Fantasia -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700;900&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg-main: #f8fafc;
-      --surface: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --primary-light: #eff6ff;
-      --border-color: #e2e8f0;
-      --success: #10b981;
-      --success-light: #ecfdf5;
-      --danger: #ef4444;
-      --danger-light: #fef2f2;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 25px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-      --radius-lg: 1.25rem;
-      --radius-md: 0.75rem;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    }
-
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at center, #1e1914 0%, #0c0a08 100%);
+      color: #e2d4b7;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem 1rem;
-      line-height: 1.5;
     }
 
-    /* Container Principal */
-    .app-container {
-      max-width: 1100px;
-      width: 100%;
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border-color);
-      padding: 2.5rem;
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-cinzel-dec { font-family: 'Cinzel Decorative', serif; }
+    .font-code { font-family: 'Fira Code', monospace; }
+
+    /* Efeito Glassmorphism Medieval */
+    .arcane-card {
+      background: rgba(22, 18, 14, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(212, 175, 55, 0.08);
     }
 
-    /* Header */
-    .app-header {
-      text-align: center;
-      margin-bottom: 2rem;
+    .arcane-inner-card {
+      background: rgba(14, 11, 9, 0.7);
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
 
-    .app-header .badge-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: 600;
-      font-size: 0.8rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 50px;
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    /* Estilos dos Orbes Desligados */
+    .orb-off {
+      background: radial-gradient(circle at 35% 35%, #38322b 0%, #171410 100%);
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.5);
+      border: 2px solid #4a4033;
+      filter: grayscale(0.8);
     }
 
-    .app-header h1 {
-      font-weight: 700;
-      font-size: 2.1rem;
-      color: var(--text-main);
-      letter-spacing: -0.02em;
+    /* Orbe 1: Fogo Arcano (Vermelho/Laranja) */
+    .orb-red-on {
+      background: radial-gradient(circle at 35% 35%, #ff8866 0%, #e63900 60%, #660f00 100%);
+      box-shadow: 0 0 25px #ff4400, 0 0 50px rgba(255, 68, 0, 0.6), inset 0 0 15px #ffffff;
+      border: 2px solid #ffaa88;
+      animation: pulse-red 2s infinite alternate;
+    }
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 20px #ff4400, 0 0 40px rgba(255, 68, 0, 0.5); }
+      100% { box-shadow: 0 0 35px #ff6622, 0 0 70px rgba(255, 68, 0, 0.8); }
     }
 
-    /* Navegação por Abas */
-    .nav-tabs {
-      display: inline-flex;
-      background: #f1f5f9;
-      padding: 0.35rem;
-      border-radius: 50px;
-      gap: 0.25rem;
-      margin-top: 1.2rem;
-      border: 1px solid var(--border-color);
+    /* Orbe 2: Raio Estelar (Azul Ciano) */
+    .orb-blue-on {
+      background: radial-gradient(circle at 35% 35%, #aaffff 0%, #00d2ff 60%, #004488 100%);
+      box-shadow: 0 0 25px #00f0ff, 0 0 50px rgba(0, 240, 255, 0.6), inset 0 0 15px #ffffff;
+      border: 2px solid #aaffff;
+      animation: pulse-blue 2s infinite alternate;
+    }
+    @keyframes pulse-blue {
+      0% { box-shadow: 0 0 20px #00f0ff, 0 0 40px rgba(0, 240, 255, 0.5); }
+      100% { box-shadow: 0 0 35px #55ffff, 0 0 70px rgba(0, 240, 255, 0.8); }
     }
 
-    .tab-btn {
-      border: none;
-      background: transparent;
-      padding: 0.6rem 1.8rem;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Orbe 3: Cura Alquímica (Verde Esmeralda) */
+    .orb-green-on {
+      background: radial-gradient(circle at 35% 35%, #aaffcc 0%, #00cc66 60%, #004411 100%);
+      box-shadow: 0 0 25px #00ff66, 0 0 50px rgba(0, 255, 102, 0.6), inset 0 0 15px #ffffff;
+      border: 2px solid #aaffcc;
+      animation: pulse-green 2s infinite alternate;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 20px #00ff66, 0 0 40px rgba(0, 255, 102, 0.5); }
+      100% { box-shadow: 0 0 35px #33ff88, 0 0 70px rgba(0, 255, 102, 0.8); }
     }
 
-    .tab-btn.active {
-      background: var(--surface);
-      color: var(--primary);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .tab-btn:hover:not(.active) {
-      color: var(--text-main);
-    }
-
-    /* Conteúdo das Abas */
-    .tab-pane {
-      display: none;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .tab-pane.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== GRID DE CABOS ===== */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-
-    .card-item {
-      background: var(--surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
-      transition: all 0.25s ease;
-      cursor: pointer;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-item:hover {
-      border-color: #93c5fd;
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .card-item.expanded {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    }
-
-    .card-header-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: var(--primary-light);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .card-item h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.25rem;
-    }
-
-    .card-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-    }
-
-    /* Métricas / Badges */
-    .metrics-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-    }
-
-    .metric-badge {
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: #f1f5f9;
-      color: #334155;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-    }
-
-    /* Expansão do Card Accordion */
-    .card-expand-wrapper {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.3s ease-out;
-    }
-
-    .card-item.expanded .card-expand-wrapper {
-      grid-template-rows: 1fr;
-    }
-
-    .card-expand-content {
-      overflow: hidden;
-    }
-
-    .card-expand-body {
-      padding-top: 1rem;
-      border-top: 1px dashed var(--border-color);
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #334155;
-      line-height: 1.6;
-    }
-
-    .toggle-hint {
-      margin-top: auto;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 0.75rem;
-    }
-
-    .toggle-hint i {
-      transition: transform 0.25s ease;
-    }
-
-    .card-item.expanded .toggle-hint i {
-      transform: rotate(180deg);
-    }
-
-    /* ===== SEÇÃO TOPOLOGIAS ===== */
-    .topo-selector {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .topo-btn {
-      background: var(--surface);
-      border: 1px solid var(--border-color);
-      padding: 1.25rem;
-      border-radius: var(--radius-md);
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-main);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      text-align: left;
-    }
-
-    .topo-btn i {
-      font-size: 1.5rem;
-      color: var(--text-muted);
-      transition: color 0.2s ease;
-    }
-
-    .topo-btn:hover {
-      border-color: #cbd5e1;
-      background: #f8fafc;
-    }
-
-    .topo-btn.active {
-      border-color: var(--primary);
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-
-    .topo-btn.active i {
-      color: var(--primary);
-    }
-
-    /* Painel Detalhado da Topologia */
-    .topo-detail-panel {
-      background: #f8fafc;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      padding: 2rem;
-    }
-
-    .topo-header-block {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .topo-title-area h4 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.5rem;
-    }
-
-    .topo-title-area p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      max-width: 650px;
-    }
-
-    /* Container do SVG da Topologia */
-    .topo-diagram-container {
-      background: var(--surface);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-width: 220px;
-      height: 140px;
-    }
-
-    .topo-diagram-container svg {
-      width: 100%;
-      height: 100%;
-      max-width: 200px;
-    }
-
-    /* Prós e Contras Grids */
-    .topo-lists-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .list-box {
-      background: var(--surface);
-      border-radius: 10px;
-      padding: 1.25rem;
-      border: 1px solid var(--border-color);
-    }
-
-    .list-box h5 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .list-box.vantagens h5 { color: var(--success); }
-    .list-box.desvantagens h5 { color: var(--danger); }
-
-    .list-box ul {
-      list-style: none;
-    }
-
-    .list-box li {
-      font-size: 0.88rem;
-      color: #334155;
-      padding: 0.4rem 0;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.6rem;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .list-box li:last-child {
-      border-bottom: none;
-    }
-
-    .list-box li i {
-      margin-top: 3px;
-      font-size: 0.8rem;
-    }
-
-    .list-box.vantagens li i { color: var(--success); }
-    .list-box.desvantagens li i { color: var(--danger); }
-
-    /* Responsividade */
-    @media (max-width: 768px) {
-      .app-container {
-        padding: 1.5rem;
-      }
-      .app-header h1 {
-        font-size: 1.6rem;
-      }
-      .topo-header-block {
-        flex-direction: column;
-      }
-      .topo-diagram-container {
-        width: 100%;
-      }
-    }
+    /* Scrollbar Personalizada para o Log */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0b09; }
+    ::-webkit-scrollbar-thumb { background: #4a4033; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
   </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-center p-4 md:p-8 min-h-screen">
 
-<div class="app-container">
-
-  <!-- Cabeçalho -->
-  <header class="app-header">
-    <div class="badge-tag">
-      <i class="fas fa-industry"></i> Automação Industrial
-    </div>
-    <h1>Conectividade & Redes</h1>
+  <!-- PAINEL PRINCIPAL DO GRIMÓRIO -->
+  <main class="arcane-card w-full max-w-5xl rounded-3xl p-6 md:p-10 relative overflow-hidden my-auto">
     
-    <!-- Navegação por Abas -->
-    <div class="nav-tabs" role="tablist">
-      <button class="tab-btn active" data-tab="cabos" role="tab" aria-selected="true">
-        <i class="fas fa-ethernet"></i> Meios de Transmissão
-      </button>
-      <button class="tab-btn" data-tab="topologias" role="tab" aria-selected="false">
-        <i class="fas fa-network-wired"></i> Topologias de Rede
-      </button>
-    </div>
-  </header>
+    <!-- Borda decorativa interna -->
+    <div class="absolute inset-2 border border-amber-500/10 rounded-2xl pointer-events-none"></div>
 
-  <!-- Conteúdo Central -->
-  <div class="tab-content">
+    <!-- CABEÇALHO -->
+    <header class="text-center mb-8 relative z-10">
+      <h1 class="font-cinzel-dec text-2xl md:text-4xl text-amber-300 font-bold tracking-wider drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)]">
+        SANTUÁRIO ARCANO IOT
+      </h1>
+      <p class="font-cinzel text-xs md:text-sm text-amber-100/70 tracking-widest mt-2 uppercase">
+        Canalização de Hardware — Tríade de LEDs Místicos
+      </p>
 
-    <!-- ABA 1: CABOS E MEIOS -->
-    <div class="tab-pane active" id="tab-cabos" role="tabpanel">
-      <div class="cards-grid">
-        
-        <!-- Card 1: Par Trançado -->
-        <div class="card-item" data-card="1">
-          <div class="card-header-icon">
-            <i class="fas fa-network-wired"></i>
-          </div>
-          <h3>Par Trançado</h3>
-          <p class="card-subtitle">Ethernet Industrial (UTP / STP / FTP)</p>
-          
-          <div class="metrics-list">
-            <span class="metric-badge">Alcance: ~100m</span>
-            <span class="metric-badge">Imunidade EMI: Média</span>
-            <span class="metric-badge">Custo: Baixo</span>
-          </div>
-
-          <div class="card-expand-wrapper">
-            <div class="card-expand-content">
-              <div class="card-expand-body">
-                <strong>Aplicação Industrial:</strong> Essencial para interligar CLPs, IHMs e switches dentro do mesmo painel ou em células de trabalho próximas. Versões blindadas (STP) evitam ruídos de motores.
-              </div>
-            </div>
-          </div>
-
-          <div class="toggle-hint">
-            <span class="hint-text">Ver detalhes de uso</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
+      <!-- ORÁCULO DE CONEXÃO (STATUS DA TEIA MQTT) -->
+      <div class="mt-4 flex justify-center">
+        <div id="statusPill" class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-amber-500/30 bg-black/50 text-xs font-semibold tracking-wider transition-all duration-300">
+          <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#f59e0b]"></span>
+          <span id="statusText" class="text-amber-300">Canalizando Elo...</span>
         </div>
-
-        <!-- Card 2: Fibra Óptica -->
-        <div class="card-item" data-card="2">
-          <div class="card-header-icon">
-            <i class="fas fa-bolt"></i>
-          </div>
-          <h3>Fibra Óptica</h3>
-          <p class="card-subtitle">Monomodo e Multimodo</p>
-          
-          <div class="metrics-list">
-            <span class="metric-badge">Alcance: Vários km</span>
-            <span class="metric-badge">Imunidade EMI: 100% (Total)</span>
-            <span class="metric-badge">Custo: Elevado</span>
-          </div>
-
-          <div class="card-expand-wrapper">
-            <div class="card-expand-content">
-              <div class="card-expand-body">
-                <strong>Aplicação Industrial:</strong> Ideal para interconectar galpões distantes e ambientes com alta presença de inversores de frequência e alta tensão, imune a ruídos elétricos.
-              </div>
-            </div>
-          </div>
-
-          <div class="toggle-hint">
-            <span class="hint-text">Ver detalhes de uso</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-        </div>
-
-        <!-- Card 3: Wireless -->
-        <div class="card-item" data-card="3">
-          <div class="card-header-icon">
-            <i class="fas fa-wifi"></i>
-          </div>
-          <h3>Wireless Industrial</h3>
-          <p class="card-subtitle">Wi-Fi 6, IWLAN & WirelessHART</p>
-
-          <div class="metrics-list">
-            <span class="metric-badge">Alcance: Variável</span>
-            <span class="metric-badge">Mobilidade: Alta</span>
-            <span class="metric-badge">Custo: Médio</span>
-          </div>
-
-          <div class="card-expand-wrapper">
-            <div class="card-expand-content">
-              <div class="card-expand-body">
-                <strong>Aplicação Industrial:</strong> Utilizado em veículos guiados automaticamente (AGVs), empilhadeiras, tablets de operadores e instrumentação em locais de difícil acesso de cabeamento.
-              </div>
-            </div>
-          </div>
-
-          <div class="toggle-hint">
-            <span class="hint-text">Ver detalhes de uso</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-        </div>
-
       </div>
-    </div>
+    </header>
 
-    <!-- ABA 2: TOPOLOGIAS -->
-    <div class="tab-pane" id="tab-topologias" role="tabpanel">
+    <!-- INPUT DE TÓPICO (PERGAMINHO DE SINTONIZAÇÃO) -->
+    <section class="mb-10 relative z-10">
+      <div class="arcane-inner-card p-4 rounded-xl border border-amber-500/20">
+        <label for="baseTopicInput" class="block font-cinzel text-xs font-bold text-amber-400/90 mb-2 uppercase tracking-widest">
+          📜 Pergaminho de Sintonização (Tópico Base MQTT)
+        </label>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input 
+            type="text" 
+            id="baseTopicInput" 
+            value="gerry_sanchez_led_exclusivo/arduino" 
+            class="flex-grow bg-black/60 border border-amber-500/30 rounded-lg px-4 py-2.5 font-code text-sm text-amber-200 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+            placeholder="Digite o tópico base..."
+          />
+          <button 
+            id="btnUpdateTopic"
+            onclick="reconnectTopic()" 
+            class="action-btn px-5 py-2.5 bg-amber-900/40 hover:bg-amber-800/60 border border-amber-500/40 text-amber-200 font-cinzel text-xs font-bold rounded-lg transition-all active:scale-95 disabled:opacity-50"
+            disabled
+          >
+            Sintonizar Elo
+          </button>
+        </div>
+        <p class="text-[11px] text-amber-200/50 mt-2 font-light">
+          * Os sub-tópicos gerados serão: <code class="font-code text-amber-300/80">[tópico]/led1</code>, <code class="font-code text-amber-300/80">[tópico]/led2</code> e <code class="font-code text-amber-300/80">[tópico]/led3</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- TRÍADE DE ORBES (CONTAINERS DOS LEDS) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 relative z-10">
       
-      <!-- Seletores -->
-      <div class="topo-selector">
-        <button class="topo-btn active" data-topo="estrela">
-          <i class="fas fa-star"></i>
-          <div>
-            <div>Layout em Estrela</div>
-            <small style="font-weight: 400; color: var(--text-muted);">Ponto central (Switch)</small>
-          </div>
-        </button>
-        <button class="topo-btn" data-topo="barramento">
-          <i class="fas fa-bars"></i>
-          <div>
-            <div>Layout em Barramento</div>
-            <small style="font-weight: 400; color: var(--text-muted);">Cabo contínuo (Trunk)</small>
-          </div>
-        </button>
-      </div>
-
-      <!-- Painel de Exibição -->
-      <div class="topo-detail-panel">
-        <div class="topo-header-block">
-          <div class="topo-title-area">
-            <h4 id="topoTitle">Layout em Estrela</h4>
-            <p id="topoDesc">Todos os nós conectam-se diretamente a um equipamento central (Switch). A comunicação é gerenciada pelo nó central.</p>
-          </div>
-          <!-- Diagrama SVG Dinâmico -->
-          <div class="topo-diagram-container" id="topoDiagram">
-            <!-- Renderizado via JS -->
-          </div>
+      <!-- CARD LED 1: FOGO ARCANO -->
+      <article class="arcane-inner-card rounded-2xl p-6 text-center flex flex-col items-center justify-between transition-all duration-300 hover:border-amber-500/40">
+        <div>
+          <h2 class="font-cinzel text-lg font-bold text-amber-300">Orbe do Fogo</h2>
+          <p class="text-xs text-amber-100/50 mb-4 font-code">Porta 11 — Rubro</p>
         </div>
 
-        <div class="topo-lists-grid">
-          <div class="list-box vantagens">
-            <h5><i class="fas fa-check-circle"></i> Vantagens</h5>
-            <ul id="vantagensList"></ul>
+        <!-- SIMULADOR VISUAL DO LED 1 -->
+        <div class="my-4 flex flex-col items-center">
+          <div id="orb1" class="w-24 h-24 rounded-full orb-off transition-all duration-500 flex items-center justify-center">
+            <div id="innerCore1" class="w-8 h-8 rounded-full bg-black/40"></div>
           </div>
-          <div class="list-box desvantagens">
-            <h5><i class="fas fa-times-circle"></i> Desvantagens</h5>
-            <ul id="desvantagensList"></ul>
+          <span id="stateText1" class="mt-4 font-cinzel text-xs tracking-widest text-amber-200/50 uppercase font-semibold">
+            Aura Extinta
+          </span>
+        </div>
+
+        <!-- BOTÕES LED 1 -->
+        <div class="w-full flex gap-3 mt-2">
+          <button 
+            onclick="publishCommand('led1', '1')" 
+            class="action-btn flex-1 py-2.5 bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/40 text-emerald-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            CONJURAR
+          </button>
+          <button 
+            onclick="publishCommand('led1', '0')" 
+            class="action-btn flex-1 py-2.5 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-500/40 text-rose-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(244,63,94,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            DISSIPAR
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD LED 2: RAIO ESTELAR -->
+      <article class="arcane-inner-card rounded-2xl p-6 text-center flex flex-col items-center justify-between transition-all duration-300 hover:border-amber-500/40">
+        <div>
+          <h2 class="font-cinzel text-lg font-bold text-amber-300">Orbe dos Raios</h2>
+          <p class="text-xs text-amber-100/50 mb-4 font-code">Porta 12 — Ciano</p>
+        </div>
+
+        <!-- SIMULADOR VISUAL DO LED 2 -->
+        <div class="my-4 flex flex-col items-center">
+          <div id="orb2" class="w-24 h-24 rounded-full orb-off transition-all duration-500 flex items-center justify-center">
+            <div id="innerCore2" class="w-8 h-8 rounded-full bg-black/40"></div>
           </div>
+          <span id="stateText2" class="mt-4 font-cinzel text-xs tracking-widest text-amber-200/50 uppercase font-semibold">
+            Aura Extinta
+          </span>
+        </div>
+
+        <!-- BOTÕES LED 2 -->
+        <div class="w-full flex gap-3 mt-2">
+          <button 
+            onclick="publishCommand('led2', '1')" 
+            class="action-btn flex-1 py-2.5 bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/40 text-emerald-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            CONJURAR
+          </button>
+          <button 
+            onclick="publishCommand('led2', '0')" 
+            class="action-btn flex-1 py-2.5 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-500/40 text-rose-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(244,63,94,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            DISSIPAR
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD LED 3: CURA ALQUÍMICA -->
+      <article class="arcane-inner-card rounded-2xl p-6 text-center flex flex-col items-center justify-between transition-all duration-300 hover:border-amber-500/40">
+        <div>
+          <h2 class="font-cinzel text-lg font-bold text-amber-300">Orbe da Vida</h2>
+          <p class="text-xs text-amber-100/50 mb-4 font-code">Porta 13 — Esmeralda</p>
+        </div>
+
+        <!-- SIMULADOR VISUAL DO LED 3 -->
+        <div class="my-4 flex flex-col items-center">
+          <div id="orb3" class="w-24 h-24 rounded-full orb-off transition-all duration-500 flex items-center justify-center">
+            <div id="innerCore3" class="w-8 h-8 rounded-full bg-black/40"></div>
+          </div>
+          <span id="stateText3" class="mt-4 font-cinzel text-xs tracking-widest text-amber-200/50 uppercase font-semibold">
+            Aura Extinta
+          </span>
+        </div>
+
+        <!-- BOTÕES LED 3 -->
+        <div class="w-full flex gap-3 mt-2">
+          <button 
+            onclick="publishCommand('led3', '1')" 
+            class="action-btn flex-1 py-2.5 bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/40 text-emerald-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            CONJURAR
+          </button>
+          <button 
+            onclick="publishCommand('led3', '0')" 
+            class="action-btn flex-1 py-2.5 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-500/40 text-rose-200 font-cinzel text-xs font-bold rounded-xl transition-all active:scale-95 hover:shadow-[0_0_15px_rgba(244,63,94,0.3)] disabled:opacity-40 disabled:pointer-events-none"
+            disabled
+          >
+            DISSIPAR
+          </button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- REGISTRO DE INVOLUÇÕES (CONSOLE / LOG ARCANO) -->
+    <footer class="relative z-10">
+      <div class="arcane-inner-card rounded-xl p-4 border border-amber-500/20">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-cinzel text-xs font-bold text-amber-400/80 tracking-widest uppercase">
+            👁️ Crônicas de Transmissão (Log MQTT)
+          </span>
+          <button onclick="clearLogs()" class="text-[10px] font-code text-amber-200/40 hover:text-amber-300">Limpar Log</button>
+        </div>
+        <div id="logConsole" class="h-24 overflow-y-auto font-code text-xs space-y-1 text-amber-200/70 p-2 bg-black/70 rounded-lg border border-amber-500/10">
+          <p class="text-amber-200/40 italic">[Iniciando invocações...]</p>
         </div>
       </div>
+    </footer>
 
-    </div>
+  </main>
 
-  </div>
-</div>
+  <!-- LÓGICA JAVASCRIPT & MQTT -->
+  <script>
+    // Configurações do Broker HiveMQ
+    const MQTT_BROKER = "broker.hivemq.com";
+    const MQTT_PORT = 8884; // WebSocket Seguro (SSL)
+    const CLIENT_ID = "ArcaneMage_" + Math.random().toString(16).substr(2, 8);
 
-<script>
-  (function() {
-    // ----- Elementos Globais -----
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    const cardItems = document.querySelectorAll('.card-item');
-    const topoBtns = document.querySelectorAll('.topo-btn');
+    let client = null;
+    let currentBaseTopic = "";
 
-    // ----- Elementos do Painel de Topologias -----
-    const topoTitle = document.getElementById('topoTitle');
-    const topoDesc = document.getElementById('topoDesc');
-    const topoDiagram = document.getElementById('topoDiagram');
-    const vantagensList = document.getElementById('vantagensList');
-    const desvantagensList = document.getElementById('desvantagensList');
-
-    // ----- SVGs Vetoriais das Topologias -----
-    const svgDiagrams = {
-      estrela: `
-        <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- Linhas de Conexão -->
-          <line x1="100" y1="60" x2="40" y2="30" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="100" y1="60" x2="160" y2="30" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="100" y1="60" x2="40" y2="90" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="100" y1="60" x2="160" y2="90" stroke="#94a3b8" stroke-width="2"/>
-          <!-- Central Hub / Switch -->
-          <circle cx="100" cy="60" r="14" fill="#2563eb"/>
-          <text x="100" y="64" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">SW</text>
-          <!-- Periféricos -->
-          <circle cx="40" cy="30" r="10" fill="#64748b"/>
-          <circle cx="160" cy="30" r="10" fill="#64748b"/>
-          <circle cx="40" cy="90" r="10" fill="#64748b"/>
-          <circle cx="160" cy="90" r="10" fill="#64748b"/>
-        </svg>
-      `,
-      barramento: `
-        <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-          <!-- Cabo Tronco Principal -->
-          <line x1="20" y1="60" x2="180" y2="60" stroke="#0f172a" stroke-width="4"/>
-          <!-- Conectores / Derivações -->
-          <line x1="50" y1="60" x2="50" y2="30" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="100" y1="60" x2="100" y2="90" stroke="#94a3b8" stroke-width="2"/>
-          <line x1="150" y1="60" x2="150" y2="30" stroke="#94a3b8" stroke-width="2"/>
-          <!-- Terminações -->
-          <rect x="15" y="52" width="6" height="16" fill="#ef4444"/>
-          <rect x="179" y="52" width="6" height="16" fill="#ef4444"/>
-          <!-- Nós -->
-          <circle cx="50" cy="30" r="10" fill="#64748b"/>
-          <circle cx="100" cy="90" r="10" fill="#64748b"/>
-          <circle cx="150" cy="30" r="10" fill="#64748b"/>
-        </svg>
-      `
-    };
-
-    // ----- Dados de Topologia -----
-    const topoData = {
-      estrela: {
-        title: "Layout em Estrela",
-        desc: "Cada equipamento possui uma conexão individual com o switch central. É o padrão moderno mais adotado em redes industriais Ethernet.",
-        svg: svgDiagrams.estrela,
-        vantagens: [
-          "Isolamento de falhas: um cabo rompido isola apenas aquele dispositivo.",
-          "Fácil expansão e manutenção sem parar a rede inteira.",
-          "Monitoramento simplificado através das portas do switch."
-        ],
-        desvantagens: [
-          "Ponto único de falha: se o switch central falhar, a rede cai.",
-          "Maior consumo de cabos direcionados ao painel central.",
-          "Custo inicial superior devido aos switches gerenciáveis."
-        ]
+    // Mapeamento dos Orbes para estilos visuais
+    const orbConfigs = {
+      'led1': {
+        elementId: 'orb1',
+        textId: 'stateText1',
+        onClass: 'orb-red-on',
+        colorText: 'text-rose-400'
       },
-      barramento: {
-        title: "Layout em Barramento",
-        desc: "Todos os dispositivos são conectados a um único cabo principal (tronco). Muito comum em redes de campo tradicionais como Profibus DP e CANopen.",
-        svg: svgDiagrams.barramento,
-        vantagens: [
-          "Economia significativa de cabeamento em distâncias longas.",
-          "Estrutura simples de instalar ao longo de esteiras ou linhas.",
-          "Não exige switches intermediários entre os nós."
-        ],
-        desvantagens: [
-          "Rompimento do cabo principal paralisa toda a rede.",
-          "Diagnóstico difícil para encontrar a localização exata de falhas.",
-          "Exige terminadores resistivos nas duas extremidades do barramento."
-        ]
+      'led2': {
+        elementId: 'orb2',
+        textId: 'stateText2',
+        onClass: 'orb-blue-on',
+        colorText: 'text-cyan-400'
+      },
+      'led3': {
+        elementId: 'orb3',
+        textId: 'stateText3',
+        onClass: 'orb-green-on',
+        colorText: 'text-emerald-400'
       }
     };
 
-    // ----- Troca de Abas -----
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetTab = btn.dataset.tab;
-
-        tabButtons.forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        tabPanes.forEach(p => p.classList.remove('active'));
-
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-        document.getElementById(`tab-${targetTab}`).classList.add('active');
-      });
+    // Inicialização ao carregar a página
+    window.addEventListener('load', () => {
+      const topicInput = document.getElementById('baseTopicInput');
+      currentBaseTopic = topicInput.value.trim().replace(/\/$/, "");
+      initMQTT();
     });
 
-    // ----- Accordion dos Cards de Cabos -----
-    cardItems.forEach(card => {
-      card.addEventListener('click', () => {
-        const isExpanded = card.classList.contains('expanded');
-        
-        // Opcional: Fechar outros cards para manter limpo
-        cardItems.forEach(c => {
-          c.classList.remove('expanded');
-          const hint = c.querySelector('.hint-text');
-          if (hint) hint.textContent = 'Ver detalhes de uso';
-        });
+    // Função de Conexão MQTT
+    function initMQTT() {
+      updateNetworkStatus("syncing");
+      addLog(`Conectando ao oráculo astral: ${MQTT_BROKER}:${MQTT_PORT}...`);
 
-        if (!isExpanded) {
-          card.classList.add('expanded');
-          card.querySelector('.hint-text').textContent = 'Recolher detalhes';
-        }
+      client = new Paho.MQTT.Client(MQTT_BROKER, Number(MQTT_PORT), CLIENT_ID);
+
+      // Callbacks
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      client.connect({
+        useSSL: true,
+        onSuccess: onConnectSuccess,
+        onFailure: onConnectFailure,
+        timeout: 10
       });
-    });
-
-    // ----- Renderização de Topologia -----
-    function updateTopology(key) {
-      const data = topoData[key];
-      if (!data) return;
-
-      topoTitle.textContent = data.title;
-      topoDesc.textContent = data.desc;
-      topoDiagram.innerHTML = data.svg;
-
-      vantagensList.innerHTML = data.vantagens.map(v => 
-        `<li><i class="fas fa-check"></i> <span>${v}</span></li>`
-      ).join('');
-
-      desvantagensList.innerHTML = data.desvantagens.map(d => 
-        `<li><i class="fas fa-times"></i> <span>${d}</span></li>`
-      ).join('');
     }
 
-    topoBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        topoBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateTopology(btn.dataset.topo);
+    // Callback de Sucesso Conexão
+    function onConnectSuccess() {
+      addLog("⚡ Elo Estabelecido com Sucesso ao Broker!");
+      updateNetworkStatus("online");
+      subscribeTopics();
+    }
+
+    // Callback de Falha Conexão
+    function onConnectFailure(response) {
+      addLog(`❌ Falha na conexão astral: ${response.errorMessage}`, "error");
+      updateNetworkStatus("offline");
+    }
+
+    // Callback Perda de Conexão
+    function onConnectionLost(response) {
+      if (response.errorCode !== 0) {
+        addLog(`💥 Elo Rompido: ${response.errorMessage}`, "error");
+        updateNetworkStatus("offline");
+      }
+    }
+
+    // Inscrever no Tópico Base (Coringa para capturar os 3 LEDs)
+    function subscribeTopics() {
+      if (!client || !client.isConnected()) return;
+
+      const wildcardTopic = `${currentBaseTopic}/#`;
+      client.subscribe(wildcardTopic, {
+        onSuccess: () => {
+          addLog(`🔮 Inscrito com sucesso no canal: ${wildcardTopic}`);
+        },
+        onFailure: (err) => {
+          addLog(`⚠️ Falha ao assinar canal: ${err.errorMessage}`, "error");
+        }
       });
-    });
+    }
 
-    // Inicialização do estado padrão
-    updateTopology('estrela');
+    // Alteração Dinâmica do Tópico pelo Usuário
+    function reconnectTopic() {
+      if (!client || !client.isConnected()) return;
 
-  })();
-</script>
+      const oldTopic = `${currentBaseTopic}/#`;
+      const newBase = document.getElementById('baseTopicInput').value.trim().replace(/\/$/, "");
 
+      if (!newBase) {
+        addLog("⚠️ Insira um tópico válido!", "error");
+        return;
+      }
+
+      // Desinscreve do antigo
+      client.unsubscribe(oldTopic, {
+        onSuccess: () => {
+          addLog(`🍃 Canal antigo cancelado: ${oldTopic}`);
+          currentBaseTopic = newBase;
+          subscribeTopics();
+        }
+      });
+    }
+
+    /* 
+      ===================================================================
+      👑 REGRA DE OURO DA ARQUITETURA
+      Os botões APENAS publicam a mensagem.
+      A interface visual do LED NUNCA é alterada dentro desta função!
+      ===================================================================
+    */
+    function publishCommand(subPath, payload) {
+      if (!client || !client.isConnected()) {
+        addLog("⚠️ Erro: Não há conexão ativa!", "error");
+        return;
+      }
+
+      const targetTopic = `${currentBaseTopic}/${subPath}`;
+      const message = new Paho.MQTT.Message(payload);
+      message.destinationName = targetTopic;
+
+      client.send(message);
+      addLog(`📤 Conjuração enviada [${targetTopic}]: ${payload}`);
+    }
+
+    /* 
+      ===================================================================
+      👑 CALLBACK DE CHEGADA DE MENSAGEM
+      O estado do LED virtual é alterado EXCLUSIVAMENTE AQUI.
+      ===================================================================
+    */
+    function onMessageArrived(message) {
+      const topic = message.destinationName;
+      const payload = message.payloadString.trim();
+
+      addLog(`📥 Mensagem recebida [${topic}]: ${payload}`);
+
+      // Identifica qual sub-tópico recebeu a mensagem
+      let ledKey = null;
+      if (topic.endsWith('/led1')) ledKey = 'led1';
+      else if (topic.endsWith('/led2')) ledKey = 'led2';
+      else if (topic.endsWith('/led3')) ledKey = 'led3';
+
+      if (ledKey && orbConfigs[ledKey]) {
+        updateOrbUI(ledKey, payload);
+      }
+    }
+
+    // Atualiza visualmente o Orbe (LED) específico
+    function updateOrbUI(ledKey, payload) {
+      const config = orbConfigs[ledKey];
+      const orbEl = document.getElementById(config.elementId);
+      const textEl = document.getElementById(config.textId);
+
+      if (payload === "1") {
+        orbEl.className = `w-24 h-24 rounded-full transition-all duration-500 flex items-center justify-center ${config.onClass}`;
+        textEl.textContent = "Aura Canalizada";
+        textEl.className = `mt-4 font-cinzel text-xs tracking-widest font-bold uppercase ${config.colorText} drop-shadow-[0_0_8px_currentColor]`;
+      } else if (payload === "0") {
+        orbEl.className = "w-24 h-24 rounded-full orb-off transition-all duration-500 flex items-center justify-center";
+        textEl.textContent = "Aura Extinta";
+        textEl.className = "mt-4 font-cinzel text-xs tracking-widest text-amber-200/50 uppercase font-semibold";
+      }
+    }
+
+    // Atualização do Status da Rede na Tela (Oráculo)
+    function updateNetworkStatus(state) {
+      const pill = document.getElementById('statusPill');
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      const actionBtns = document.querySelectorAll('.action-btn');
+
+      if (state === "syncing") {
+        pill.className = "inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-amber-500/30 bg-black/50 text-xs font-semibold tracking-wider";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#f59e0b]";
+        text.className = "text-amber-300";
+        text.textContent = "Canalizando Elo...";
+        actionBtns.forEach(btn => btn.disabled = true);
+      } else if (state === "online") {
+        pill.className = "inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 text-xs font-semibold tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]";
+        text.className = "text-emerald-300";
+        text.textContent = "Elo Estabelecido";
+        actionBtns.forEach(btn => btn.disabled = false);
+      } else if (state === "offline") {
+        pill.className = "inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-rose-500/40 bg-rose-950/40 text-xs font-semibold tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.2)]";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e]";
+        text.className = "text-rose-300";
+        text.textContent = "Elo Rompido";
+        actionBtns.forEach(btn => btn.disabled = true);
+      }
+    }
+
+    // Utilitário para Logs de Console Visual
+    function addLog(msg, type = "info") {
+      const consoleEl = document.getElementById('logConsole');
+      const time = new Date().toLocaleTimeString();
+      const p = document.createElement('p');
+      
+      if (type === "error") p.className = "text-rose-400 font-bold";
+      else p.className = "text-amber-200/80";
+
+      p.innerHTML = `<span class="text-amber-500/50">[${time}]</span> ${msg}`;
+      consoleEl.appendChild(p);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('logConsole').innerHTML = '';
+    }
+  </script>
 </body>
 </html>
